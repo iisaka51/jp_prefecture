@@ -69,6 +69,12 @@ class JpPrefecture(object):
                                   self._prefectures.index)
         }
 
+        self._code2alphabet = {
+            code: alphabet
+            for alphabet, code in zip(self._prefectures.alphabet_name,
+                                  self._prefectures.index)
+        }
+
         self._name2code = {
             **{name: code
                for name, code in zip(self._prefectures.name,
@@ -97,6 +103,12 @@ class JpPrefecture(object):
             **{alphabet.upper(): name
             for alphabet, name in zip(self._prefectures.alphabet_name,
                                               self._prefectures.name)},
+            **{alphabet: name
+            for alphabet, name in zip(self._prefectures.name,
+                                      self._prefectures.name)},
+            **{alphabet: name
+            for alphabet, name in zip(self._prefectures.short_name,
+                                      self._prefectures.name)},
         }
 
         self._name2alphabet = {
@@ -105,6 +117,15 @@ class JpPrefecture(object):
                                         self._prefectures.alphabet_name)},
             **{name: alphabet
               for name, alphabet in zip(self._prefectures.short_name,
+                                        self._prefectures.alphabet_name)},
+            **{name: alphabet
+              for name, alphabet in zip(self._prefectures.alphabet_name,
+                                        self._prefectures.alphabet_name)},
+            **{name.lower(): alphabet
+              for name, alphabet in zip(self._prefectures.alphabet_name,
+                                        self._prefectures.alphabet_name)},
+            **{name.upper(): alphabet
+              for name, alphabet in zip(self._prefectures.alphabet_name,
                                         self._prefectures.alphabet_name)},
     }
 
@@ -120,6 +141,14 @@ class JpPrefecture(object):
         """ Convert prefecture code to name """
         try:
             name = self._code2name[code]
+        except KeyError:
+            name = None
+        return name
+
+    def code2alphabet(self, code: int) -> str:
+        """ Convert prefecture code to alphabet_name """
+        try:
+            name = self._code2alphabet[code]
         except KeyError:
             name = None
         return name

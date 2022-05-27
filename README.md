@@ -33,7 +33,11 @@ assert ( jp.name2code("京都府")
 
 assert jp.code2name(26) == "京都府"
 
-assert jp.name2alphabet("京都府") == "Kyoto"
+assert jp.code2alphabet(26) == "Kyoto"
+
+assert ( jp.name2code("京都府")
+         == jp.name2code("京都")
+         == "Kyoto" )
 
 assert ( jp.alphabet2name("Kyoto")
          == jp.name2code("KYOTO")
