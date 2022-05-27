@@ -53,7 +53,7 @@ class JpPrefecture(object):
         }
 
         # Index is code (JIS X 0401-1973)
-        self._prefectures = pd.DataFrame(
+        self.prefectures = pd.DataFrame(
             dict(
                 name = [p for p in self._prefecture_names.keys()],
                 short_name = [p[:-1] for p in self._prefecture_names.keys()],
@@ -63,84 +63,23 @@ class JpPrefecture(object):
                              name="code"),
         )
 
-        self._code2name = {
-            code: name
-            for name, code in zip(self._prefectures.name,
-                                  self._prefectures.index)
-        }
-
-        self._code2alphabet = {
-            code: alphabet
-            for alphabet, code in zip(self._prefectures.alphabet_name,
-                                  self._prefectures.index)
-        }
-
-        self._name2code = {
-            **{name: code
-               for name, code in zip(self._prefectures.name,
-                                     self._prefectures.index)},
-            **{name: code
-               for name, code in zip(self._prefectures.short_name,
-                                     self._prefectures.index)},
-            **{name: code
-               for name, code in zip(self._prefectures.alphabet_name,
-                                     self._prefectures.index)},
-            **{name.lower(): code
-               for name, code in zip(self._prefectures.alphabet_name,
-                                     self._prefectures.index)},
-            **{name.upper(): code
-               for name, code in zip(self._prefectures.alphabet_name,
-                                     self._prefectures.index)},
-        }
-
-        self._alphabet2name = {
-            **{alphabet: name
-            for alphabet, name in zip(self._prefectures.alphabet_name,
-                                      self._prefectures.name)},
-            **{alphabet.lower(): name
-            for alphabet, name in zip(self._prefectures.alphabet_name,
-                                              self._prefectures.name)},
-            **{alphabet.upper(): name
-            for alphabet, name in zip(self._prefectures.alphabet_name,
-                                              self._prefectures.name)},
-            **{alphabet: name
-            for alphabet, name in zip(self._prefectures.name,
-                                      self._prefectures.name)},
-            **{alphabet: name
-            for alphabet, name in zip(self._prefectures.short_name,
-                                      self._prefectures.name)},
-        }
-
-        self._name2alphabet = {
-            **{name: alphabet
-              for name, alphabet in zip(self._prefectures.name,
-                                        self._prefectures.alphabet_name)},
-            **{name: alphabet
-              for name, alphabet in zip(self._prefectures.short_name,
-                                        self._prefectures.alphabet_name)},
-            **{name: alphabet
-              for name, alphabet in zip(self._prefectures.alphabet_name,
-                                        self._prefectures.alphabet_name)},
-            **{name.lower(): alphabet
-              for name, alphabet in zip(self._prefectures.alphabet_name,
-                                        self._prefectures.alphabet_name)},
-            **{name.upper(): alphabet
-              for name, alphabet in zip(self._prefectures.alphabet_name,
-                                        self._prefectures.alphabet_name)},
-    }
-
     def name2code(self, name: str) -> int:
         """ Convert prefecture name to code """
+        code = None
         try:
-            code = self._name2code[name]
+            name = name.capitalize()
+            for label in self.prefectures.columns:
+                d = self.prefectures.index[self.prefectures[label] == name]
+                if len(d):
+                    code = d[0]
         except KeyError:
-            code = None
+            pass
         return code
 
     def code2name(self, code: int) -> str:
         """ Convert prefecture code to name """
         try:
-            name = self._code2name[code]
+            name = self.prefectures.at[code, 'name']
         except KeyError:
             name = None
         return name
@@ -148,25 +87,35 @@ class JpPrefecture(object):
     def code2alphabet(self, code: int) -> str:
         """ Convert prefecture code to alphabet_name """
         try:
-            name = self._code2alphabet[code]
+            name = self.prefectures.at[code, 'alphabet_name']
         except KeyError:
             name = None
         return name
 
     def name2alphabet(self, name: str) -> str:
         """ Convert a prefecture name to alphabet_name """
+        alphabet = None
         try:
-            alphabet = self._name2alphabet[name]
+            name = name.capitalize()
+            for label in self.prefectures.columns:
+                d = self.prefectures.index[self.prefectures[label] == name]
+                if len(d):
+                    alphabet = self.prefectures.at[d[0], 'alphabet_name']
         except KeyError:
-            alphabet = None
+            pass
         return alphabet
+
 
     def alphabet2name(self, alphabet_name: str) -> str:
         """ Convert a prefecture alphabet_name to name """
+        name = None
         try:
-            name = self._alphabet2name[alphabet_name]
+            alphabet_name = alphabet_name.capitalize()
+            for label in self.prefectures.columns:
+                d = self.prefectures.index[self.prefectures[label] == alphabet_name]
+                if len(d):
+                    name = self.prefectures.at[d[0], 'alphabet_name']
         except KeyError:
-            name = None
-        return name
+            pass
 
 jp_prefectures = JpPrefecture()
