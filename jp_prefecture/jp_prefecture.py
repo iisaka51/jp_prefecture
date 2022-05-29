@@ -12,7 +12,7 @@ def methoddispatch(func):
 
 class JpPrefecture(object):
     def __init__(self):
-        self._prefecture_names = {
+        self.__prefecture_names = {
             "北海道" : 'Hokkaido',
             "青森県" : 'Aomori',
             "岩手県" : 'Iwate',
@@ -65,21 +65,21 @@ class JpPrefecture(object):
         # Index is code (JIS X 0401-1973)
         self.prefectures = pd.DataFrame(
             dict(
-                name = [p for p in self._prefecture_names.keys()],
-                short_name = [p[:-1] for p in self._prefecture_names.keys()],
-                alphabet_name = [p for p in self._prefecture_names.values()],
+                name = [p for p in self.__prefecture_names.keys()],
+                short_name = [p[:-1] for p in self.__prefecture_names.keys()],
+                alphabet_name = [p for p in self.__prefecture_names.values()],
             ),
-            index = pd.Index(range(1, 1 + len(self._prefecture_names)),
+            index = pd.Index(range(1, 1 + len(self.__prefecture_names)),
                              name="code"),
         )
 
-        self._code2name = {
+        self.__code2name = {
             code: name
             for name, code in zip(self.prefectures.name,
                                   self.prefectures.index)
         }
 
-        self._code2alphabet = {
+        self.__code2alphabet = {
             code: alphabet
             for alphabet, code in zip(self.prefectures.alphabet_name,
                                   self.prefectures.index)
@@ -177,7 +177,7 @@ class JpPrefecture(object):
     def _code2name_int(self, code: int) -> Optional[str]:
         """ Convert prefecture code to name """
         try:
-            name = self._code2name[code]
+            name = self.__code2name[code]
         except KeyError:
             name = None
         return name
@@ -192,7 +192,7 @@ class JpPrefecture(object):
     def _code2name_series(self, code_series: pd.Series) -> pd.Series:
         """ Convert pandas series of prefecture code to alphabet_name """
         try:
-            name = code_series.map(self._code2name)
+            name = code_series.map(self.__code2name)
         except KeyError:
             name = pd.Series([])
         return name
@@ -206,7 +206,7 @@ class JpPrefecture(object):
     def _code2alphabet_int(self, code: int) -> Optional[str]:
         """ Convert prefecture code to name """
         try:
-            alphabet = self._code2alphabet[code]
+            alphabet = self.__code2alphabet[code]
         except KeyError:
             alphabet = None
         return alphabet
@@ -221,7 +221,7 @@ class JpPrefecture(object):
     def _code2alphabet_series(self, code_series: pd.Series) -> pd.Series:
         """ Convert pandas series of prefecture code to alphabet_name """
         try:
-            alphabet = code_series.map(self._code2name)
+            alphabet = code_series.map(self.__code2alphabet)
         except KeyError:
             alphabet = pd.Series([])
         return alphabet
@@ -285,7 +285,7 @@ class JpPrefecture(object):
         return alphabet
 
     @methoddispatch
-    def alphabet2name(self, arg):   #arg: Any) -> Optional[str]:
+    def alphabet2name(self, arg: Any) -> Optional[str]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
