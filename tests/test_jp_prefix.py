@@ -1,6 +1,6 @@
 import sys
 
-sys.path.append("../jp_prefecture")
+sys.path.insert(0,"../jp_prefecture")
 
 from jp_prefecture import jp_prefectures as jp
 import pandas as pd

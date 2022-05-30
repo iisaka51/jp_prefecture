@@ -1,6 +1,6 @@
 import pandas as pd
 from typing import List, Optional, Any
-from .methoddispatch import methoddispatch
+from .singledispatchmethod import singledispatchmethod
 
 class JpPrefecture(object):
     def __init__(self):
@@ -131,7 +131,7 @@ class JpPrefecture(object):
                                         self.prefectures.alphabet_name)},
     }
 
-    @methoddispatch
+    @singledispatchmethod
     def name2code(self, arg: Any) -> Optional[int]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
@@ -160,7 +160,7 @@ class JpPrefecture(object):
             code = pd.Series([])
         return code
 
-    @methoddispatch
+    @singledispatchmethod
     def code2name(self, arg: Any) -> Optional[str]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
@@ -189,7 +189,7 @@ class JpPrefecture(object):
             name = pd.Series([])
         return name
 
-    @methoddispatch
+    @singledispatchmethod
     def code2alphabet(self, arg: Any) -> Optional[str]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
@@ -218,7 +218,7 @@ class JpPrefecture(object):
             alphabet = pd.Series([])
         return alphabet
 
-    @methoddispatch
+    @singledispatchmethod
     def alphabet2code(self, arg: Any) -> Optional[str]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
@@ -247,7 +247,7 @@ class JpPrefecture(object):
             code = pd.Series([])
         return name
 
-    @methoddispatch
+    @singledispatchmethod
     def name2alphabet(self, arg: Any) -> Optional[str]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
@@ -276,7 +276,7 @@ class JpPrefecture(object):
             alphabet = pd.Series([])
         return alphabet
 
-    @methoddispatch
+    @singledispatchmethod
     def alphabet2name(self, arg: Any) -> Optional[str]:
         """ dispatch function """
         raise TypeError('Unsupport Type')

@@ -194,14 +194,13 @@ assert ( s1.equals(s2)
          == True )
 ```
 
+## BONUS
+As of python 3.8 [funtools.singledispatchmethod](https://docs.python.org/3/library/functools.html#functools.singledispatchmethod) allows singledispatch on methods, class methods, and staticmethods.
 
-
-### BONUS
-
-Here's simple example for type dispatch in class method.
+For older ppython version, you can use as follows.
 
 ```python
-from jp_prefecture.methoddispatch  import methoddispatch
+from jp_prefecture.singledispatchmethod import singledispatchmethod
 
 class Patchwork(object):
 
@@ -209,7 +208,7 @@ class Patchwork(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    @methoddispatch
+    @singledispatchmethod
     def get(self, arg):
         return getattr(self, arg, None)
 
@@ -223,13 +222,4 @@ if __name__ == '__main__':
     print(pw.get(['a', 'c']))
 ```
 
-```python
->>> pw = Patchwork(a=1, b=2, c=3)
->>> pw.get("b")
-2
->>> pw.get(["a", "c"])
-[1, 3]
-```
-
-See Also: [StackOverflow](https://stackoverflow.com/questions/24601722/how-can-i-use-functools-singledispatch-with-instance-methods).
-
+See Also [StackOverflow](https://stackoverflow.com/questions/24601722/how-can-i-use-functools-singledispatch-with-instance-methods/)
