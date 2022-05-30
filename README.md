@@ -194,10 +194,13 @@ assert ( s1.equals(s2)
          == True )
 ```
 
+Trivia
+Kyoto, Osaka and Nara are the place where the emperor established their capitals.
+
 ## BONUS
 As of python 3.8 [funtools.singledispatchmethod](https://docs.python.org/3/library/functools.html#functools.singledispatchmethod) allows singledispatch on methods, class methods, and staticmethods.
 
-For older ppython version, you can use as follows.
+For older python version, you can use as follows.
 
 ```python
 from jp_prefecture.singledispatchmethod import singledispatchmethod
