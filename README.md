@@ -6,6 +6,7 @@ Simple utility to convert the name of japanese prefectures.
 - full_name from/to code (JIS X 0401-1973).
 - short_name to full_name
 - alphabet_name from/to full_name
+- validator for full_name and short_name, alphabet_name.
 - support lists and pandas serires as input.
 
 Reference
@@ -192,9 +193,43 @@ assert ( s1.equals(s2)
          == s4.equals(s5)
          == s5.equals(s6)
          == True )
+
+assert ( jp.validator('京都府')
+         == jp.validator('京都')
+         == jp.validator('Kyoto')
+         == jp.validator('KYOTO')
+         == jp.validator('kyoto')
+         == True )
+
+assert ( jp.validator('京都県')
+         == jp.validator('都京')
+         == jp.validator('KyOto')
+         == jp.validator('KYoTO')
+         == jp.validator('kyotofu')
+         == False )
+
+assert ( jp.validator(['京都府', '大阪府', '奈良県'])
+         == jp.validator(['京都', '大阪', '奈良'])
+         == jp.validator(['Kyoto', 'Osaka', 'Nara'])
+         == jp.validator(['KYOTO', 'OSAKA', 'NARA'])
+         == jp.validator(['kyoto', 'osaka', 'nara'])
+         == [True, True, True] )
+
+s1 = jp.validator(pd.Series(['京都府', '大阪府', '奈良県']))
+s2 = jp.validator(pd.Series(['京都', '大阪', '奈良']))
+s3 = jp.validator(pd.Series(['Kyoto', 'Osaka', 'Nara']))
+s4 = jp.validator(pd.Series(['KYOTO', 'OSAKA', 'NARA']))
+s5 = jp.validator(pd.Series(['kyoto', 'osaka', 'nara']))
+s6 = pd.Series([True, True, True])
+assert ( s1.equals(s2)
+         == s2.equals(s3)
+         == s3.equals(s4)
+         == s4.equals(s5)
+         == s5.equals(s6)
+         == True )
 ```
 
-Trivia
+>Trivia
 Kyoto, Osaka and Nara are the place where the emperor established their capitals.
 
 ## BONUS

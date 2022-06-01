@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from typing import List, Optional, Any
 from .singledispatchmethod import singledispatchmethod
@@ -304,5 +305,38 @@ class JpPrefecture(object):
         except KeyError:
             name = pd.Series([])
         return name
+
+    @singledispatchmethod
+    def validator(self, arg: Any) -> Optional[str]:
+        """ dispatch function """
+        raise TypeError('Unsupport Type')
+
+    @validator.register(str)
+    def _validator_str(self, name: str) -> Optional[str]:
+        """ Validator a prefecture name """
+        try:
+            v = name in self.__name2code.keys()
+        except:
+            v = False
+        return v
+
+    @validator.register(list)
+    def _validator_list(self, name_list: List) -> List:
+        """ Validator list of prefecture name """
+        try:
+            v = [ self.validator(x) for x in name_list]
+        except:
+            v = [False]
+        return v
+
+    @validator.register(pd.Series)
+    def _validator_series(self, name_series: pd.Series) -> pd.Series:
+        """ Validator pandas series of prefecture name """
+        try:
+            v = [ self.validator(x) for x in np.asarray(name_series)]
+            print(v)
+        except KeyError:
+            v = [False]
+        return pd.Series(v)
 
 jp_prefectures = JpPrefecture()

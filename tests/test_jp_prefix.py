@@ -117,3 +117,64 @@ class TestClass:
                  == s4.equals(s5)
                  == s5.equals(s6)
                  == True )
+
+    def test_validator_true(self):
+        assert ( jp.validator('京都府')
+                 == jp.validator('京都')
+                 == jp.validator('Kyoto')
+                 == jp.validator('KYOTO')
+                 == jp.validator('kyoto')
+                 == True )
+
+    def test_validator_false(self):
+        assert ( jp.validator('京都県')
+                 == jp.validator('都京')
+                 == jp.validator('KyOto')
+                 == jp.validator('KYoTO')
+                 == jp.validator('kyotofu')
+                 == False )
+
+    def test_validator_list(self):
+        assert ( jp.validator(['京都府', '大阪府', '奈良県'])
+                 == jp.validator(['京都', '大阪', '奈良'])
+                 == jp.validator(['Kyoto', 'Osaka', 'Nara'])
+                 == jp.validator(['KYOTO', 'OSAKA', 'NARA'])
+                 == jp.validator(['kyoto', 'osaka', 'nara'])
+                 == [True, True, True] )
+
+    def test_validator_list_false(self):
+        assert ( jp.validator(['京都県', '大阪府', '奈良県'])
+                 == jp.validator(['都京', '大阪', '奈良'])
+                 == jp.validator(['KyOto', 'Osaka', 'Nara'])
+                 == jp.validator(['KYoTO', 'OSAKA', 'NARA'])
+                 == jp.validator(['kyotofu', 'osaka', 'nara'])
+                 == [False, True, True] )
+
+    def test_validator_series(self):
+        s1 = jp.validator(pd.Series(['京都府', '大阪府', '奈良県']))
+        s2 = jp.validator(pd.Series(['京都', '大阪', '奈良']))
+        s3 = jp.validator(pd.Series(['Kyoto', 'Osaka', 'Nara']))
+        s4 = jp.validator(pd.Series(['KYOTO', 'OSAKA', 'NARA']))
+        s5 = jp.validator(pd.Series(['kyoto', 'osaka', 'nara']))
+        s6 = pd.Series([True, True, True])
+        assert ( s1.equals(s2)
+                 == s2.equals(s3)
+                 == s3.equals(s4)
+                 == s4.equals(s5)
+                 == s5.equals(s6)
+                 == True )
+
+    def test_validator_series_false(self):
+        s1 = jp.validator(pd.Series(['京都県', '大阪府', '奈良県']))
+        s2 = jp.validator(pd.Series(['都京', '大阪', '奈良']))
+        s3 = jp.validator(pd.Series(['KyOto', 'Osaka', 'Nara']))
+        s4 = jp.validator(pd.Series(['KYoTO', 'OSAKA', 'NARA']))
+        s5 = jp.validator(pd.Series(['kyotofu', 'osaka', 'nara']))
+        s6 = pd.Series([False, True, True])
+        assert ( s1.equals(s2)
+                 == s2.equals(s3)
+                 == s3.equals(s4)
+                 == s4.equals(s5)
+                 == s5.equals(s6)
+                 == True )
+
