@@ -12,11 +12,11 @@ def sdist(c):
     c.run(cmd)
 
 @task(sdist)
-def bdist_wheel(c):
+def bdistwheel(c):
     cmd = 'python setup.py bdist_wheel'
     c.run(cmd)
 
-@task(sdist, build_wheel)
+@task(sdist, bdistwheel)
 def upload(c):
     cmd = 'twine upload --repository pypi dist/*'
     c.run(cmd)
