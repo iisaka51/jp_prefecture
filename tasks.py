@@ -12,8 +12,8 @@ def sdist(c):
     c.run(cmd)
 
 @task(sdist)
-def build_wheel(c):
-    cmd = 'python setup.py build_wheel'
+def bdist_wheel(c):
+    cmd = 'python setup.py bdist_wheel'
     c.run(cmd)
 
 @task(sdist, build_wheel)
