@@ -232,7 +232,7 @@ assert ( s1.equals(s2)
 >Trivia
 Kyoto, Osaka and Nara are the place where the emperor established their capitals.
 
-## BONUS
+## BONUS: simpledispatchmethod
 As of python 3.8 [funtools.singledispatchmethod](https://docs.python.org/3/library/functools.html#functools.singledispatchmethod) allows singledispatch on methods, class methods, and staticmethods.
 
 For older python version, you can use as follows.
@@ -261,3 +261,32 @@ if __name__ == '__main__':
 ```
 
 See Also [StackOverflow](https://stackoverflow.com/questions/24601722/how-can-i-use-functools-singledispatch-with-instance-methods/)
+
+
+##  BONUS: ImmutableDict
+If you want to use immutable dictionary. try as follows.
+
+```python
+In [1]: from jp_prefecture.immutable_dict import ImmutableDict
+
+In [2]: d = ImmutableDict({1: 'A', 2: 'B', 3: 'C'})
+
+In [3]: d
+Out[3]: {1: 'A', 2: 'B', 3: 'C'}
+
+In [4]: d.pop(1)
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+Input In [5], in <cell line: 1>()
+----> 1 d.pop(1)
+
+File ~/Projects/GitHub/jp_prefecture/jp_prefecture/immutable_dict.py:10, in ImmutableDict.__getattribute__(self, attribute)
+      8 def __getattribute__(self, attribute):
+      9     if attribute in ('clear', 'update', 'pop', 'popitem', 'setdefault'):
+---> 10         raise AttributeError("%r object has no attribute %r" % (type(self).__name__, attribute))
+     11     return dict.__getattribute__(self, attribute)
+
+AttributeError: 'ImmutableDict' object has no attribute 'pop'
+
+In [5]:
+```
