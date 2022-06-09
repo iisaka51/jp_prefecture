@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from typing import List, Optional, Any, NamedTuple
+from typing import List, Optional, Any
 from .singledispatchmethod import singledispatchmethod
 from .immutable_dict import ImmutableDict
 
