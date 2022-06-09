@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
-from typing import List, Optional, Any
+from typing import List, Optional, Any, NamedTuple
 from .singledispatchmethod import singledispatchmethod
+from .immutable_dict import ImmutableDict
 
 class JpPrefecture(object):
     def __init__(self):
@@ -66,19 +67,19 @@ class JpPrefecture(object):
                              name="code"),
         )
 
-        self.__code2name = {
+        self.__code2name = ImmutableDict({
             code: name
             for name, code in zip(self.prefectures.name,
                                   self.prefectures.index)
-        }
+        })
 
-        self.__code2alphabet = {
+        self.__code2alphabet = ImmutableDict({
             code: alphabet
             for alphabet, code in zip(self.prefectures.alphabet_name,
                                   self.prefectures.index)
-        }
+        })
 
-        self.__name2code = {
+        self.__name2code = ImmutableDict({
             **{name: code
                for name, code in zip(self.prefectures.name,
                                      self.prefectures.index)},
@@ -94,9 +95,9 @@ class JpPrefecture(object):
             **{name.upper(): code
                for name, code in zip(self.prefectures.alphabet_name,
                                      self.prefectures.index)},
-        }
+        })
 
-        self.__alphabet2name = {
+        self.__alphabet2name = ImmutableDict({
             **{alphabet: name
             for alphabet, name in zip(self.prefectures.alphabet_name,
                                       self.prefectures.name)},
@@ -112,9 +113,9 @@ class JpPrefecture(object):
             **{alphabet: name
             for alphabet, name in zip(self.prefectures.short_name,
                                       self.prefectures.name)},
-        }
+        })
 
-        self.__name2alphabet = {
+        self.__name2alphabet = ImmutableDict({
             **{name: alphabet
               for name, alphabet in zip(self.prefectures.name,
                                         self.prefectures.alphabet_name)},
@@ -130,7 +131,7 @@ class JpPrefecture(object):
             **{name.upper(): alphabet
               for name, alphabet in zip(self.prefectures.alphabet_name,
                                         self.prefectures.alphabet_name)},
-    }
+    })
 
     @singledispatchmethod
     def name2code(self, arg: Any) -> Optional[int]:
