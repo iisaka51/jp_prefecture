@@ -6,42 +6,63 @@ from jp_prefecture.jp_cities import jp_cities as city
 import pandas as pd
 
 class TestClass:
-    def test_name2code(self):
-        assert ( city.name2code('京都市')
+    def test_name2citycode(self):
+        assert ( city.name2citycode('京都市')
                  == 26100 )
 
-    def test_name2code_with_checkdigit(self):
-        assert ( city.name2code('京都市', with_checkdigit=True)
+    def test_name2citycode_with_checkdigit(self):
+        assert ( city.name2citycode('京都市', with_checkdigit=True)
                  == 261009 )
 
-    def test_name2code_list(self):
-        assert ( city.name2code(['京都市北区', '京都市左京区', '京都市右京区'])
+    def test_name2citycode_list(self):
+        assert ( city.name2citycode(['京都市北区', '京都市左京区', '京都市右京区'])
                  == [26101, 26103, 26108] )
 
-    def test_name2code_series(self):
-        s1 = city.name2code( pd.Series(
+    def test_name2citycode_series(self):
+        s1 = city.name2citycode( pd.Series(
                      ['京都市北区', '京都市左京区', '京都市右京区']))
         s2 = pd.Series([26101, 26103, 26108])
         assert ( s1.equals(s2) == True )
 
-    def test_code2name(self):
-        assert city.code2name(26100) == '京都市'
+    def test_name2prefcode(self):
+        assert ( city.name2prefcode('京都市')
+                 == 26 )
 
-    def test_code2name_as_str(self):
-        assert city.code2name("26100") == '京都市'
+    def test_name2prefcode_list(self):
+        assert ( city.name2prefcode(['京都市北区', '大阪市中央区'])
+                 == [26, 27] )
 
-    def test_code2name_with_checkdigit(self):
-        assert city.code2name(261009) == '京都市'
+    def test_name2prefecture(self):
+        assert ( city.name2prefecture('京都市')
+                 == '京都府' )
 
-    def test_code2name_as_str_with_checkdigit(self):
-        assert city.code2name("261009") == '京都市'
+    def test_name2prefecture_list(self):
+        assert ( city.name2prefecture(['京都市北区', '大阪市中央区'])
+                 == ['京都府', '大阪府'] )
 
-    def test_code2name_list(self):
-        assert ( city.code2name([26101, 26103, 26108])
+    def test_name2prefcode_series(self):
+        s1 = city.name2prefcode(pd.Series(['京都市北区', '大阪市中央区']))
+        s2 = pd.Series([26, 27])
+        assert ( s1.equals(s2) == True )
+
+    def test_citycode2name(self):
+        assert city.citycode2name(26100) == '京都市'
+
+    def test_citycode2name_as_str(self):
+        assert city.citycode2name("26100") == '京都市'
+
+    def test_citycode2name_with_checkdigit(self):
+        assert city.citycode2name(261009) == '京都市'
+
+    def test_citycode2name_as_str_with_checkdigit(self):
+        assert city.citycode2name("261009") == '京都市'
+
+    def test_citycode2name_list(self):
+        assert ( city.citycode2name([26101, 26103, 26108])
                  ==  ['京都市北区', '京都市左京区', '京都市右京区'] )
 
-    def test_code2name_series(self):
-        s1 = city.code2name(pd.Series([26101, 26103, 26108]))
+    def test_citycode2name_series(self):
+        s1 = city.citycode2name(pd.Series([26101, 26103, 26108]))
         s2 = pd.Series( ['京都市北区', '京都市左京区', '京都市右京区'] )
         assert s1.equals(s2) == True
 
