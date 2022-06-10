@@ -144,44 +144,44 @@ class TestClass:
                  == s5.equals(s6)
                  == True )
 
-    def test_validator_true(self):
-        assert ( jp.validator('京都府')
-                 == jp.validator('京都')
-                 == jp.validator('Kyoto')
-                 == jp.validator('KYOTO')
-                 == jp.validator('kyoto')
+    def test_validate_true(self):
+        assert ( jp.validate('京都府')
+                 == jp.validate('京都')
+                 == jp.validate('Kyoto')
+                 == jp.validate('KYOTO')
+                 == jp.validate('kyoto')
                  == True )
 
-    def test_validator_false(self):
-        assert ( jp.validator('京都県')
-                 == jp.validator('都京')
-                 == jp.validator('KyOto')
-                 == jp.validator('KYoTO')
-                 == jp.validator('kyotofu')
+    def test_validate_false(self):
+        assert ( jp.validate('京都県')
+                 == jp.validate('都京')
+                 == jp.validate('KyOto')
+                 == jp.validate('KYoTO')
+                 == jp.validate('kyotofu')
                  == False )
 
-    def test_validator_list(self):
-        assert ( jp.validator(['京都府', '大阪府', '奈良県'])
-                 == jp.validator(['京都', '大阪', '奈良'])
-                 == jp.validator(['Kyoto', 'Osaka', 'Nara'])
-                 == jp.validator(['KYOTO', 'OSAKA', 'NARA'])
-                 == jp.validator(['kyoto', 'osaka', 'nara'])
+    def test_validate_list(self):
+        assert ( jp.validate(['京都府', '大阪府', '奈良県'])
+                 == jp.validate(['京都', '大阪', '奈良'])
+                 == jp.validate(['Kyoto', 'Osaka', 'Nara'])
+                 == jp.validate(['KYOTO', 'OSAKA', 'NARA'])
+                 == jp.validate(['kyoto', 'osaka', 'nara'])
                  == [True, True, True] )
 
-    def test_validator_list_false(self):
-        assert ( jp.validator(['京都県', '大阪府', '奈良県'])
-                 == jp.validator(['都京', '大阪', '奈良'])
-                 == jp.validator(['KyOto', 'Osaka', 'Nara'])
-                 == jp.validator(['KYoTO', 'OSAKA', 'NARA'])
-                 == jp.validator(['kyotofu', 'osaka', 'nara'])
+    def test_validate_list_false(self):
+        assert ( jp.validate(['京都県', '大阪府', '奈良県'])
+                 == jp.validate(['都京', '大阪', '奈良'])
+                 == jp.validate(['KyOto', 'Osaka', 'Nara'])
+                 == jp.validate(['KYoTO', 'OSAKA', 'NARA'])
+                 == jp.validate(['kyotofu', 'osaka', 'nara'])
                  == [False, True, True] )
 
-    def test_validator_series(self):
-        s1 = jp.validator(pd.Series(['京都府', '大阪府', '奈良県']))
-        s2 = jp.validator(pd.Series(['京都', '大阪', '奈良']))
-        s3 = jp.validator(pd.Series(['Kyoto', 'Osaka', 'Nara']))
-        s4 = jp.validator(pd.Series(['KYOTO', 'OSAKA', 'NARA']))
-        s5 = jp.validator(pd.Series(['kyoto', 'osaka', 'nara']))
+    def test_validate_series(self):
+        s1 = jp.validate(pd.Series(['京都府', '大阪府', '奈良県']))
+        s2 = jp.validate(pd.Series(['京都', '大阪', '奈良']))
+        s3 = jp.validate(pd.Series(['Kyoto', 'Osaka', 'Nara']))
+        s4 = jp.validate(pd.Series(['KYOTO', 'OSAKA', 'NARA']))
+        s5 = jp.validate(pd.Series(['kyoto', 'osaka', 'nara']))
         s6 = pd.Series([True, True, True])
         assert ( s1.equals(s2)
                  == s2.equals(s3)
@@ -190,12 +190,12 @@ class TestClass:
                  == s5.equals(s6)
                  == True )
 
-    def test_validator_series_false(self):
-        s1 = jp.validator(pd.Series(['京都県', '大阪府', '奈良県']))
-        s2 = jp.validator(pd.Series(['都京', '大阪', '奈良']))
-        s3 = jp.validator(pd.Series(['KyOto', 'Osaka', 'Nara']))
-        s4 = jp.validator(pd.Series(['KYoTO', 'OSAKA', 'NARA']))
-        s5 = jp.validator(pd.Series(['kyotofu', 'osaka', 'nara']))
+    def test_validate_series_false(self):
+        s1 = jp.validate(pd.Series(['京都県', '大阪府', '奈良県']))
+        s2 = jp.validate(pd.Series(['都京', '大阪', '奈良']))
+        s3 = jp.validate(pd.Series(['KyOto', 'Osaka', 'Nara']))
+        s4 = jp.validate(pd.Series(['KYoTO', 'OSAKA', 'NARA']))
+        s5 = jp.validate(pd.Series(['kyotofu', 'osaka', 'nara']))
         s6 = pd.Series([False, True, True])
         assert ( s1.equals(s2)
                  == s2.equals(s3)

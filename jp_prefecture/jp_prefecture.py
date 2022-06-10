@@ -328,33 +328,33 @@ class JpPrefecture(object):
         return name
 
     @singledispatchmethod
-    def validator(self, arg: Any) -> Optional[str]:
+    def validate(self, arg: Any) -> Optional[str]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
-    @validator.register(str)
-    def _validator_str(self, name: str) -> Optional[str]:
-        """ Validator a prefecture name """
+    @validate.register(str)
+    def _validate_str(self, name: str) -> Optional[str]:
+        """ validate a prefecture name """
         try:
             v = name in self.__name2code.keys()
         except:
             v = False
         return v
 
-    @validator.register(list)
-    def _validator_list(self, name_list: List) -> List:
-        """ Validator list of prefecture name """
+    @validate.register(list)
+    def _validate_list(self, name_list: List) -> List:
+        """ validate list of prefecture name """
         try:
-            v = [ self.validator(x) for x in name_list]
+            v = [ self.validate(x) for x in name_list]
         except:
             v = [False]
         return v
 
-    @validator.register(pd.Series)
-    def _validator_series(self, name_series: pd.Series) -> pd.Series:
-        """ Validator pandas series of prefecture name """
+    @validate.register(pd.Series)
+    def _validate_series(self, name_series: pd.Series) -> pd.Series:
+        """ validate pandas series of prefecture name """
         try:
-            v = [ self.validator(x) for x in np.asarray(name_series)]
+            v = [ self.validate(x) for x in np.asarray(name_series)]
             print(v)
         except KeyError:
             v = [False]
