@@ -15,7 +15,7 @@ currently alphabet_name and short_name only works for prefectures.
 
 Reference
 
-- [JIS X 0401 JSON API](https://madefor.github.io/jisx0401/)
+- https://www.soumu.go.jp/denshijiti/code.html (in japanese)
 
 ## Install
 
@@ -329,7 +329,7 @@ assert s1.equals(s2) == True
 s1 = city.validator(pd.Series(['京都県', '大阪府', '奈良県']))
 s2 = pd.Series([False, False, False])
 assert s1.equals(s2) == True
-
+```
 
 >Trivia
 Kyoto, Osaka and Nara are the place where the emperor established their capitals.
@@ -397,47 +397,40 @@ In [5]:
 
 small utility to compute modulus 11 check digit.
 
-assert ( validate_checkdigit(261009)
-         == 26100 )
+```python
+from jp_prefecture.checkdigit import validate_checkdigit, calc_checkdigit
 
-assert ( validate_checkdigit("261009")
-         == "26100" )
+# 26100 is CityCode of Kyoto City
 
-assert ( validate_checkdigit(261008)
-         == None )
+assert validate_checkdigit(261009) == 26100
 
-assert ( validate_checkdigit("261008")
-         == None )
+assert validate_checkdigit("261009") == "26100"
 
-assert ( validate_checkdigit("2610", 5)
-         == None )
+assert validate_checkdigit(261008) == None
 
-assert ( validate_checkdigit("2610", 5)
-         == None )
+assert validate_checkdigit("261008") == None
 
-assert ( validate_checkdigit(261009, 5)
-         == 26100 )
+assert validate_checkdigit("2610", 5) == None
 
-assert ( validate_checkdigit("261009", 5)
-         == "26100" )
+assert validate_checkdigit("2610", 5) == None
 
-assert ( validate_checkdigit(261009, weights=[6,5,4,3,2])
-         == 26100 )
+assert validate_checkdigit(261009, 5) == 26100
 
-assert ( calc_checkdigit(26100)
-         == 261009 )
+assert validate_checkdigit("261009", 5) == "26100"
 
-assert ( calc_checkdigit("26100")
-         == "261009" )
+assert calc_checkdigit(26100) == 261009
 
-assert ( calc_checkdigit(26100, only_checkdigit=True)
-         == 9 )
+assert calc_checkdigit("26100") == "261009"
 
-assert ( calc_checkdigit("26100", only_checkdigit=True)
-         == "9" )
+assert calc_checkdigit(26100, only_checkdigit=True) == 9
 
-assert ( calc_checkdigit("26100",  weights=[6,5,4,3,2])
-         == "261009" )
+assert calc_checkdigit("26100", only_checkdigit=True) == "9"
+
+assert validate_checkdigit(261009, weights=[6,5,4,3,2]) == 26100
+
+assert calc_checkdigit("26100",  weights=[6,5,4,3,2]) == "261009"
+```
+
 
 ## The CityCode Number (JIS X 0402)
 The CityCode number consists of a five-digit number assigned to each local public entity (prefecture, municipality, etc.) in Japan, as well as to counties that are not solely local public entities but are used as statistical divisions, in accordance with certain rules.
@@ -445,6 +438,5 @@ Among the five-digit numbers The first two digits represent prefectures, numbere
 The third digit indicates whether the area belongs to a city or a county. The third digit indicates whether the area belongs to a city or a county. The last two digits are 3-digit numbers.
 The last two digits are the number of the respective group represented by the third digit ("1": special wards, wards of ordinance-designated cities, "2": a group of cities, "3-": a group of counties, "4-": a group of towns and villages belonging to counties, "5-": a group of cities). 3-": counties and towns/villages within each county), and the last two digits are assigned to each city, county, town, or village according to the arrangement of the third digit. The arrangement of cities, counties, towns, and villages is fixed for each prefecture and ordinance-designated city. In most prefectures, cities are arranged in the order in which they were established, but in some cases, such as Wakayama Prefecture, cities are arranged from north to south regardless of the order in which they were established.
 Thus, each city, county, town, village is represented by the third digit and the last two digits combined.
-For example, Nagaokakyo City in Kyoto Prefecture is represented by the citycode number "26209", of which the upper two digits "26" represent Kyoto Prefecture and the lower three digits The last 3-digit "209" represents Sagamihara City, which is the 9th city (10th if Kyoto City is included) in Kyoto Prefecture.
-
+For example, Nagaokakyo City in Kyoto Prefecture is represented by the citycode number "26209", of which the upper two digits "26" represent Kyoto Prefecture and the lower three digits The last 3-digit "209" represents Nagaokakyo City, which is the 9th city (10th if Kyoto City is included) in Kyoto Prefecture.
 
