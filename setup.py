@@ -4,9 +4,17 @@ from pathlib import Path
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
+def get_version(rel_path):
+    for line in (this_directory / rel_path).read_text().splitlines():
+        if line.startswith('__VERSION__'):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    else:
+        raise RuntimeError("Unable to find version string.")
+
 setup(
     name="jp_prefecture",
-    version="0.2.5",
+    version=get_version('jp_prefecture/versions.py'),
     license="MIT",
     install_requirements=["pandas"],
     author="iisaka51",

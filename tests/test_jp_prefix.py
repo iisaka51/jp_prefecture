@@ -39,22 +39,48 @@ class TestClass:
     def test_code2name(self):
         assert jp.code2name(26) == '京都府'
 
+    def test_code2name_as_str(self):
+        assert jp.code2name("26") == '京都府'
+
     def test_code2name_list(self):
-        assert jp.code2name([26, 27, 29]) == ['京都府', '大阪府', '奈良県']
+        assert ( jp.code2name([26, 27, 29])
+                 == ['京都府', '大阪府', '奈良県'] )
+
+    def test_code2name_as_str_list(self):
+        assert ( jp.code2name(["26", "27", "29"])
+                 == ['京都府', '大阪府', '奈良県'] )
 
     def test_code2name_series(self):
         s1 = jp.code2name(pd.Series([26, 27, 29]))
         s2 = pd.Series(['京都府', '大阪府', '奈良県'])
         assert s1.equals(s2) == True
 
+    def test_code2name_as_str_series(self):
+        s1 = jp.code2name(pd.Series(["26", "27", "29"]))
+        s2 = pd.Series(['京都府', '大阪府', '奈良県'])
+        assert s1.equals(s2) == True
+
     def test_code2alphabet(self):
         assert jp.code2alphabet(26) == 'Kyoto'
 
+    def test_code2alphabet(self):
+        assert jp.code2alphabet("26") == 'Kyoto'
+
     def test_code2alphabet_list(self):
-        assert jp.code2alphabet([26, 27, 29]) == ['Kyoto', 'Osaka', 'Nara']
+        assert ( jp.code2alphabet([26, 27, 29])
+                 == ['Kyoto', 'Osaka', 'Nara'] )
+
+    def test_code2alphabet_as_str_list(self):
+        assert ( jp.code2alphabet(["26", "27", "29"])
+                 == ['Kyoto', 'Osaka', 'Nara'] )
 
     def test_code2alphabet_series(self):
         s1 = jp.code2alphabet(pd.Series([26, 27, 29]))
+        s2 = pd.Series(['Kyoto', 'Osaka', 'Nara'])
+        assert s1.equals(s2) == True
+
+    def test_code2alphabet_as_str_series(self):
+        s1 = jp.code2alphabet(pd.Series(["26", "27", "29"]))
         s2 = pd.Series(['Kyoto', 'Osaka', 'Nara'])
         assert s1.equals(s2) == True
 

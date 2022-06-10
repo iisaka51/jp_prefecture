@@ -176,6 +176,15 @@ class JpPrefecture(object):
             name = None
         return name
 
+    @code2name.register(str)
+    def _code2name_int(self, code: str) -> Optional[str]:
+        """ Convert prefecture code to name """
+        try:
+            name = self.__code2name[int(code)]
+        except KeyError:
+            name = None
+        return name
+
     @code2name.register(list)
     def _code2name_list(self, code_list: List) -> List:
         """ Convert list of prefecture code to name """
@@ -186,6 +195,7 @@ class JpPrefecture(object):
     def _code2name_series(self, code_series: pd.Series) -> pd.Series:
         """ Convert pandas series of prefecture code to alphabet_name """
         try:
+            code_series = code_series.astype(int)
             name = code_series.map(self.__code2name)
         except KeyError:
             name = pd.Series([])
@@ -205,6 +215,15 @@ class JpPrefecture(object):
             alphabet = None
         return alphabet
 
+    @code2alphabet.register(str)
+    def _code2alphabet_int(self, code: str) -> Optional[str]:
+        """ Convert prefecture code to name """
+        try:
+            alphabet = self.__code2alphabet[int(code)]
+        except KeyError:
+            alphabet = None
+        return alphabet
+
     @code2alphabet.register(list)
     def _code2alphabet_list(self, code_list: List) -> List:
         """ Convert list of prefecture code to name """
@@ -215,6 +234,7 @@ class JpPrefecture(object):
     def _code2alphabet_series(self, code_series: pd.Series) -> pd.Series:
         """ Convert pandas series of prefecture code to alphabet_name """
         try:
+            code_series = code_series.astype(int)
             alphabet = code_series.map(self.__code2alphabet)
         except KeyError:
             alphabet = pd.Series([])

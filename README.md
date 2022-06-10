@@ -1,13 +1,17 @@
 # jp_prefecture.
-> Japan prefecture names and codes
+> Japan prefecture and city names and codes
 
 Simple utility to convert the name of japanese prefectures.
 
-- full_name from/to code (JIS X 0401-1973).
+- full_name from/to code (JIS X 0401-1973, JIX X 0402).
 - short_name to full_name
 - alphabet_name from/to full_name
 - validator for full_name and short_name, alphabet_name.
+- allow code as str or int.
 - support lists and pandas serires as input.
+- support checkdigits for citycode.
+
+currently alphabet_name and short_name only works for prefectures.
 
 Reference
 
@@ -91,6 +95,41 @@ memory usage: 1.2+ KB
 >>>
 ```
 
+## Dataframe of Cities
+
+```python
+
+In [6]: city.cities
+Out[6]:
+      prefCode  cityCode cityName  bigCityFlag
+0            1      1100      札幌市            2
+1            1      1101   札幌市中央区            1
+2            1      1102    札幌市北区            1
+3            1      1103    札幌市東区            1
+4            1      1104   札幌市白石区            1
+...        ...       ...      ...          ...
+1917        47     47361     久米島町            0
+1918        47     47362     八重瀬町            0
+1919        47     47375     多良間村            0
+1920        47     47381      竹富町            0
+1921        47     47382     与那国町            0
+
+In [7]: city.cities.info()
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 1922 entries, 0 to 1921
+Data columns (total 4 columns):
+ #   Column       Non-Null Count  Dtype
+---  ------       --------------  -----
+ 0   prefCode     1922 non-null   int64
+ 1   cityCode     1922 non-null   int64
+ 2   cityName     1922 non-null   object
+ 3   bigCityFlag  1922 non-null   int64
+dtypes: int64(3), object(1)
+memory usage: 75.1+ KB
+
+In [8]:
+```
+
 ### Conversion
 
 ```python
@@ -125,8 +164,10 @@ assert ( s1.equals(s2)
          == True )
 
 assert jp.code2name(26) == '京都府'
+assert jp.code2name("26") == '京都府'
 
 assert jp.code2name([26, 27, 29]) == ['京都府', '大阪府', '奈良県']
+assert jp.code2name(["26", "27", "29"]) == ['京都府', '大阪府', '奈良県']
 
 s1 = jp.code2name(pd.Series([26, 27, 29]))
 s2 = pd.Series(['京都府', '大阪府', '奈良県'])
@@ -137,6 +178,10 @@ assert jp.code2alphabet(26) == 'Kyoto'
 assert jp.code2alphabet([26, 27, 29]) == ['Kyoto', 'Osaka', 'Nara']
 
 s1 = jp.code2alphabet(pd.Series([26, 27, 29]))
+s2 = pd.Series(['Kyoto', 'Osaka', 'Nara'])
+assert s1.equals(s2) == True
+
+s1 = jp.code2alphabet(pd.Series(["26", "27", "29"]))
 s2 = pd.Series(['Kyoto', 'Osaka', 'Nara'])
 assert s1.equals(s2) == True
 
@@ -229,6 +274,63 @@ assert ( s1.equals(s2)
          == True )
 ```
 
+
+```python
+from jp_prefecture.jp_cities import jp_cities as city
+import pandas as pd
+
+assert city.name2code('京都市') == 26100
+assert city.name2code('京都市', with_checkdigit=True) == 261009
+
+assert ( city.name2code(['京都市北区', '京都市左京区', '京都市右京区'])
+         == [26101, 26103, 26108] )
+
+s1 = city.name2code( pd.Series(
+             ['京都市北区', '京都市左京区', '京都市右京区']))
+s2 = pd.Series([26101, 26103, 26108])
+assert ( s1.equals(s2) == True )
+
+assert city.code2name(26100) == '京都市'
+assert city.code2name("26100") == '京都市'
+assert city.code2name(261009) == '京都市'
+assert city.code2name("261009") == '京都市'
+
+assert ( city.code2name([26101, 26103, 26108])
+         ==  ['京都市北区', '京都市左京区', '京都市右京区'] )
+
+s1 = city.code2name(pd.Series([26101, 26103, 26108]))
+s2 = pd.Series( ['京都市北区', '京都市左京区', '京都市右京区'] )
+assert s1.equals(s2) == True
+
+assert city.validator('京都市') == True
+
+assert ( city.validator('京都県')
+         == city.validator('都京市')
+         == city.validator('KyOto')
+         == city.validator('KYoTO')
+         == city.validator('kyotoshi')
+         == False )
+
+assert ( city.validator(['京都市北区', '京都市左京区', '京都市右京区'])
+         == [True, True, True] )
+
+assert ( city.validator(['京都県', '大阪府', '奈良県'])
+         == city.validator(['都京', '大阪', '奈良'])
+         == city.validator(['KyOto', 'Osaka', 'Nara'])
+         == city.validator(['KYoTO', 'OSAKA', 'NARA'])
+         == city.validator(['kyotofu', 'osaka', 'nara'])
+         == [False, False, False] )
+
+s1 = city.validator(pd.Series(
+         ['京都市北区', '京都市左京区', '京都市右京区']))
+s2 = pd.Series([True, True, True])
+assert s1.equals(s2) == True
+
+s1 = city.validator(pd.Series(['京都県', '大阪府', '奈良県']))
+s2 = pd.Series([False, False, False])
+assert s1.equals(s2) == True
+
+
 >Trivia
 Kyoto, Osaka and Nara are the place where the emperor established their capitals.
 
@@ -290,3 +392,59 @@ AttributeError: 'ImmutableDict' object has no attribute 'pop'
 
 In [5]:
 ```
+
+## BONUS: checkdigit.validate_checkdigit, checkdigit.calc_cehckdigit
+
+small utility to compute modulus 11 check digit.
+
+assert ( validate_checkdigit(261009)
+         == 26100 )
+
+assert ( validate_checkdigit("261009")
+         == "26100" )
+
+assert ( validate_checkdigit(261008)
+         == None )
+
+assert ( validate_checkdigit("261008")
+         == None )
+
+assert ( validate_checkdigit("2610", 5)
+         == None )
+
+assert ( validate_checkdigit("2610", 5)
+         == None )
+
+assert ( validate_checkdigit(261009, 5)
+         == 26100 )
+
+assert ( validate_checkdigit("261009", 5)
+         == "26100" )
+
+assert ( validate_checkdigit(261009, weights=[6,5,4,3,2])
+         == 26100 )
+
+assert ( calc_checkdigit(26100)
+         == 261009 )
+
+assert ( calc_checkdigit("26100")
+         == "261009" )
+
+assert ( calc_checkdigit(26100, only_checkdigit=True)
+         == 9 )
+
+assert ( calc_checkdigit("26100", only_checkdigit=True)
+         == "9" )
+
+assert ( calc_checkdigit("26100",  weights=[6,5,4,3,2])
+         == "261009" )
+
+## The CityCode Number (JIS X 0402)
+The CityCode number consists of a five-digit number assigned to each local public entity (prefecture, municipality, etc.) in Japan, as well as to counties that are not solely local public entities but are used as statistical divisions, in accordance with certain rules.
+Among the five-digit numbers The first two digits represent prefectures, numbered from north to south, from "01" (Hokkaido) to "47" (Okinawa).
+The third digit indicates whether the area belongs to a city or a county. The third digit indicates whether the area belongs to a city or a county. The last two digits are 3-digit numbers.
+The last two digits are the number of the respective group represented by the third digit ("1": special wards, wards of ordinance-designated cities, "2": a group of cities, "3-": a group of counties, "4-": a group of towns and villages belonging to counties, "5-": a group of cities). 3-": counties and towns/villages within each county), and the last two digits are assigned to each city, county, town, or village according to the arrangement of the third digit. The arrangement of cities, counties, towns, and villages is fixed for each prefecture and ordinance-designated city. In most prefectures, cities are arranged in the order in which they were established, but in some cases, such as Wakayama Prefecture, cities are arranged from north to south regardless of the order in which they were established.
+Thus, each city, county, town, village is represented by the third digit and the last two digits combined.
+For example, Nagaokakyo City in Kyoto Prefecture is represented by the citycode number "26209", of which the upper two digits "26" represent Kyoto Prefecture and the lower three digits The last 3-digit "209" represents Sagamihara City, which is the 9th city (10th if Kyoto City is included) in Kyoto Prefecture.
+
+
