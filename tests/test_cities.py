@@ -33,6 +33,11 @@ class TestClass:
         assert ( jp.name2prefcode(['京都市北区', '大阪市中央区'])
                  == [26, 27] )
 
+    def test_name2prefcode_series(self):
+        s1 = jp.name2prefcode(pd.Series(['京都市北区', '大阪市中央区']))
+        s2 = pd.Series([26, 27])
+        assert ( s1.equals(s2) == True )
+
     def test_name2prefecture(self):
         assert ( jp.name2prefecture('京都市')
                  == '京都府' )
@@ -41,9 +46,9 @@ class TestClass:
         assert ( jp.name2prefecture(['京都市北区', '大阪市中央区'])
                  == ['京都府', '大阪府'] )
 
-    def test_name2prefcode_series(self):
-        s1 = jp.name2prefcode(pd.Series(['京都市北区', '大阪市中央区']))
-        s2 = pd.Series([26, 27])
+    def test_name2prefecture_series(self):
+        s1 = jp.name2prefecture(pd.Series(['京都市北区', '大阪市中央区']))
+        s2 = pd.Series(['京都府', '大阪府'] )
         assert ( s1.equals(s2) == True )
 
     def test_citycode2name(self):

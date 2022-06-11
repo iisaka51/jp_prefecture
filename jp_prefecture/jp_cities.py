@@ -123,6 +123,18 @@ class JpCityCode(JpPrefecture):
         name = list(map(self.code2name, code))
         return name
 
+    @name2prefecture.register(pd.Series)
+    def _name2prefecture_series(self,
+            name_series: pd.Series,
+        ) -> pd.Series:
+        """ Convert pandas series of cityName to Prefecture Name """
+        try:
+            code = name_series.map(self.name2prefcode)
+            name = code.map(self.code2name)
+        except KeyError:
+            name = pd.Series([])
+        return name
+
     @singledispatchmethod
     def citycode2name(self, arg: Any) -> Optional[str]:
         """ dispatch function """

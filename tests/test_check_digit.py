@@ -59,3 +59,12 @@ class TestClass:
     def test_cacl_checkdig_str_only_digit(self):
         assert ( calc_checkdigit("26100",  weights=[6,5,4,3,2])
                  == "261009" )
+
+    def test_validate_isdb10(self):
+        assert( validate_checkdigit(4900900672) == 490090067)
+
+    def test_validate_isdb10_str(self):
+        assert( validate_checkdigit("4900900672") == "490090067")
+
+    def test_validate_isdb13_str(self):
+        assert( validate_checkdigit("978-4-906649-006") == "978490664900")

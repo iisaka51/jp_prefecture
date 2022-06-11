@@ -1,7 +1,5 @@
 from typing import Union, Optional
-import snoop
 
-@snoop
 def validate_checkdigit(
         number: Union[int, str],
         num_digits: Optional[int]=None,
