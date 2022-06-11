@@ -6,7 +6,7 @@ Simple utility to convert the name of japanese prefectures.
 - full_name from/to code (JIS X 0401-1973, JIX X 0402).
 - short_name to full_name
 - alphabet_name from/to full_name
-- validator for full_name and short_name, alphabet_name.
+- validate for full_name and short_name, alphabet_name and city name.
 - allow code as str or int.
 - support lists and pandas serires as input.
 - support checkdigits for citycode.
@@ -239,32 +239,32 @@ assert ( s1.equals(s2)
          == s5.equals(s6)
          == True )
 
-assert ( jp.validator('京都府')
-         == jp.validator('京都')
-         == jp.validator('Kyoto')
-         == jp.validator('KYOTO')
-         == jp.validator('kyoto')
+assert ( jp.validate('京都府')
+         == jp.validate('京都')
+         == jp.validate('Kyoto')
+         == jp.validate('KYOTO')
+         == jp.validate('kyoto')
          == True )
 
-assert ( jp.validator('京都県')
-         == jp.validator('都京')
-         == jp.validator('KyOto')
-         == jp.validator('KYoTO')
-         == jp.validator('kyotofu')
+assert ( jp.validate('京都県')
+         == jp.validate('都京')
+         == jp.validate('KyOto')
+         == jp.validate('KYoTO')
+         == jp.validate('kyotofu')
          == False )
 
-assert ( jp.validator(['京都府', '大阪府', '奈良県'])
-         == jp.validator(['京都', '大阪', '奈良'])
-         == jp.validator(['Kyoto', 'Osaka', 'Nara'])
-         == jp.validator(['KYOTO', 'OSAKA', 'NARA'])
-         == jp.validator(['kyoto', 'osaka', 'nara'])
+assert ( jp.validate(['京都府', '大阪府', '奈良県'])
+         == jp.validate(['京都', '大阪', '奈良'])
+         == jp.validate(['Kyoto', 'Osaka', 'Nara'])
+         == jp.validate(['KYOTO', 'OSAKA', 'NARA'])
+         == jp.validate(['kyoto', 'osaka', 'nara'])
          == [True, True, True] )
 
-s1 = jp.validator(pd.Series(['京都府', '大阪府', '奈良県']))
-s2 = jp.validator(pd.Series(['京都', '大阪', '奈良']))
-s3 = jp.validator(pd.Series(['Kyoto', 'Osaka', 'Nara']))
-s4 = jp.validator(pd.Series(['KYOTO', 'OSAKA', 'NARA']))
-s5 = jp.validator(pd.Series(['kyoto', 'osaka', 'nara']))
+s1 = jp.validate(pd.Series(['京都府', '大阪府', '奈良県']))
+s2 = jp.validate(pd.Series(['京都', '大阪', '奈良']))
+s3 = jp.validate(pd.Series(['Kyoto', 'Osaka', 'Nara']))
+s4 = jp.validate(pd.Series(['KYOTO', 'OSAKA', 'NARA']))
+s5 = jp.validate(pd.Series(['kyoto', 'osaka', 'nara']))
 s6 = pd.Series([True, True, True])
 assert ( s1.equals(s2)
          == s2.equals(s3)
@@ -315,32 +315,32 @@ s1 = city.citycode2name(pd.Series([26101, 26103, 26108]))
 s2 = pd.Series( ['京都市北区', '京都市左京区', '京都市右京区'] )
 assert s1.equals(s2) == True
 
-assert ( city.validator('京都市') == True )
+assert ( city.validate_city('京都市') == True )
 
-assert ( city.validator('京都県')
-         == city.validator('都京市')
-         == city.validator('KyOto')
-         == city.validator('KYoTO')
-         == city.validator('kyotoshi')
+assert ( city.validate_city('京都県')
+         == city.validate_city('都京市')
+         == city.validate_city('KyOto')
+         == city.validate_city('KYoTO')
+         == city.validate_city('kyotoshi')
          == False )
 
-assert ( city.validator(['京都市北区', '京都市左京区', '京都市右京区'])
+assert ( city.validate_city(['京都市北区', '京都市左京区', '京都市右京区'])
          == [True, True, True] )
 
-assert ( city.validator(['京都県', '大阪府', '奈良県'])
-         == city.validator(['都京', '大阪', '奈良'])
-         == city.validator(['KyOto', 'Osaka', 'Nara'])
-         == city.validator(['KYoTO', 'OSAKA', 'NARA'])
-         == city.validator(['kyotofu', 'osaka', 'nara'])
+assert ( city.validate_city(['京都県', '大阪府', '奈良県'])
+         == city.validate_city(['都京', '大阪', '奈良'])
+         == city.validate_city(['KyOto', 'Osaka', 'Nara'])
+         == city.validate_city(['KYoTO', 'OSAKA', 'NARA'])
+         == city.validate_city(['kyotofu', 'osaka', 'nara'])
          == [False, False, False] )
 
-s1 = city.validator(pd.Series(
+s1 = city.validate_city(pd.Series(
          ['京都市北区', '京都市左京区', '京都市右京区']))
 s2 = pd.Series([True, True, True])
 assert ( s1.equals(s2)
          == True )
 
-s1 = city.validator(pd.Series(['京都県', '大阪府', '奈良県']))
+s1 = city.validate_city(pd.Series(['京都県', '大阪府', '奈良県']))
 s2 = pd.Series([False, False, False])
 assert ( s1.equals(s2) == True )
 
@@ -444,6 +444,13 @@ assert calc_checkdigit("26100", only_checkdigit=True) == "9"
 assert validate_checkdigit(261009, weights=[6,5,4,3,2]) == 26100
 
 assert calc_checkdigit("26100",  weights=[6,5,4,3,2]) == "261009"
+
+# for ISDB10
+assert( validate_checkdigit(4-900900672) == 490090067)
+assert( validate_checkdigit("4-900900672") == "490090067")
+
+# for ISDB13
+assert( validate_checkdigit("978-4-906649-006") == "978490664900")
 ```
 
 
