@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
-from typing import List, Optional, Any
+from typing import List, Optional, Union, Any
 from pathlib import Path
 from .singledispatchmethod import singledispatchmethod
 from .immutable_dict import ImmutableDict
 from .checkdigit import calc_checkdigit, validate_checkdigit
 from .jp_prefecture import JpPrefecture
+from .utils import is_alpha
 
 class JpCityCode(JpPrefecture):
     def __init__(self):
@@ -15,169 +16,366 @@ class JpCityCode(JpPrefecture):
         self.cities = pd.read_csv(Path(__file__).parent / 'data/cities.csv',
                                   index_col = 0)
 
+        self.cities['prefCode'] = pd.to_numeric(self.cities['prefCode'],
+                                                downcast='integer')
+        self.cities['cityCode'] = pd.to_numeric(self.cities['cityCode'],
+                                                downcast='integer')
+        self.cities['bigCityFlag'] = pd.to_numeric(self.cities['bigCityFlag'],
+                                                downcast='integer')
         self.__citycode2name = ImmutableDict({
             code: name
-            for name, code in zip(self.cities.cityName,
-                                  self.cities.cityCode)
+            for code, name in zip(self.cities.cityCode,
+                                  self.cities.cityName)
         })
 
-        self.__name2citycode = ImmutableDict({
+        self.__citycode2alphabet = ImmutableDict({
+            code: alphabet
+            for code, alphabet in zip(self.cities.cityCode,
+                                  self.cities.cityAlphabet)
+        })
+
+        self.__cityname2code = ImmutableDict({
             **{name: code
                for name, code in zip(self.cities.cityName,
                                      self.cities.cityCode)},
+            **{name: code
+               for name, code in zip(self.cities.cityAlphabet,
+                                     self.cities.cityCode)},
+            **{name.title(): code
+               for name, code in zip(self.cities.cityAlphabet,
+                                     self.cities.cityCode)},
+        })
+
+        self.__cityname2alphabet = ImmutableDict({
+            **{name: alphabet
+               for name, alphabet in zip(self.cities.cityName,
+                                     self.cities.cityAlphabet)},
+            **{name: alphabet
+               for name, alphabet in zip(self.cities.cityAlphabet,
+                                     self.cities.cityAlphabet)},
+            **{name.title(): alphabet
+               for name, alphabet in zip(self.cities.cityAlphabet,
+                                     self.cities.cityAlphabet)},
+        })
+
+        self.__cityalphabet2name = ImmutableDict({
+            **{alphabet: name
+               for alphabet, name in zip(self.cities.cityName,
+                                     self.cities.cityName)},
+            **{alphabet: name
+               for alphabet, name in zip(self.cities.cityAlphabet,
+                                     self.cities.cityName)},
+            **{alphabet.title(): name
+               for alphabet, name in zip(self.cities.cityAlphabet,
+                                     self.cities.cityName)},
         })
 
     @singledispatchmethod
-    def name2citycode(self, arg: Any) -> Optional[int]:
+    def cityname2code(self, arg: Any) -> Optional[int]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
-    @name2citycode.register(str)
-    def _name2citycode_str(self,
+    @cityname2code.register(type(None))
+    def _cityname2code_none(self,
             name: str,
-            with_checkdigit=False
+            ignore_case: bool=False,
+            checkdigit: bool=False
+        ) -> Optional[int]:
+        """ Catch None and return None """
+        return None
+
+    @cityname2code.register(str)
+    def _cityname2code_str(self,
+            name: str,
+            ignore_case: bool=False,
+            checkdigit: bool=False
         ) -> Optional[int]:
         """ Convert cityName to cityCode """
         try:
-            code = self.__name2citycode[name]
-            if with_checkdigit:
-                code = calc_checkdigit(code)
+            name = [name, name.title()][ignore_case]
+            code = self.__cityname2code[name]
+            code = code and [code, calc_checkdigit(code)][checkdigit]
         except KeyError:
             code = None
         return code
 
-    @name2citycode.register(list)
-    def _name2citycode_list(self,
+    @cityname2code.register(list)
+    def _cityname2code_list(self,
             name_list: List,
-            with_checkdigit=False
+            ignore_case: bool=False,
+            checkdigit: bool=False
         ) -> List:
         """ Convert list of cityName to cityCode """
-        code = [self.name2citycode(x, with_checkdigit) for x in name_list]
+        code = [self.cityname2code(x, ignore_case, checkdigit)
+                                   for x in name_list]
         return code
 
-    @name2citycode.register(pd.Series)
-    def _name2citycode_series(self,
+    @cityname2code.register(pd.Series)
+    def _cityname2code_series(self,
             name_series: pd.Series,
-            with_checkdigit=False
+            ignore_case: bool=False,
+            checkdigit: bool=False
         ) -> pd.Series:
         """ Convert pandas series of cityName to cityCode """
         try:
-            code = name_series.map(self.__name2citycode, with_checkdigit)
-            if with_checkdigit:
-                code = calc_checkdigit(code)
+            name_series = [name_series,
+                           name_series.str.title()][ignore_case]
+            code = name_series.map(self.__cityname2code)
+            code = [code,
+                    code.map(calc_checkdigit)][checkdigit]
         except KeyError:
             code = pd.Series([])
         return code
 
-    @singledispatchmethod
-    def name2prefcode(self, arg: Any) -> Optional[int]:
-        """ dispatch function """
-        raise TypeError('Unsupport Type')
-
-    @name2prefcode.register(str)
-    def name2prefcode_str(self, name: str) -> Optional[int]:
-        """ Convert CityName to Prefecture Code"""
-        code = self.__name2citycode[name]
-        if code:
-            prefcode = int(str(code)[:2])
-        else:
-            prefcode = None
-        return prefcode
-
-    @name2prefcode.register(list)
-    def _name2prefcode_list(self,
-            name_list: List,
-        ) -> List:
-        """ Convert list of cityName to Prefecture Code """
-        code = [self.name2prefcode(x) for x in name_list]
-        return code
-
-    @name2prefcode.register(pd.Series)
-    def _name2prefcode_series(self,
-            name_series: pd.Series,
-        ) -> pd.Series:
-        """ Convert pandas series of cityName to Prefecture Code """
-        try:
-            code = name_series.map(self.__name2citycode)
-            code = code.map(lambda x: int(str(x)[:2]) if x else x)
-        except KeyError:
-            code = pd.Series([])
-        return code
-
-    @singledispatchmethod
-    def name2prefecture(self, arg: Any) -> Optional[int]:
-        """ dispatch function """
-        raise TypeError('Unsupport Type')
-
-    @name2prefecture.register(str)
-    def name2prefecture_str(self, name: str) -> Optional[int]:
-        """ Convert CityName to Prefecture Name"""
-        code = self.name2prefcode(name)
-        name = self.code2name(code)
-        return name
-
-    @name2prefecture.register(list)
-    def name2prefecture_str(self, name_list: list) -> Optional[int]:
-        """ Convert list of CityName to Prefecture Name"""
-        code = self.name2prefcode(name_list)
-        name = list(map(self.code2name, code))
-        return name
-
-    @name2prefecture.register(pd.Series)
-    def _name2prefecture_series(self,
-            name_series: pd.Series,
-        ) -> pd.Series:
-        """ Convert pandas series of cityName to Prefecture Name """
-        try:
-            code = name_series.map(self.name2prefcode)
-            name = code.map(self.code2name)
-        except KeyError:
-            name = pd.Series([])
-        return name
 
     @singledispatchmethod
     def citycode2name(self, arg: Any) -> Optional[str]:
-        """ dispatch function """
+        """ Convert cityCode to cityName """
         raise TypeError('Unsupport Type')
 
+    @citycode2name.register(type(None))
+    def _citycode2name_int(self,
+            code: None,
+            ascii: bool=False,
+        ):
+        return None
+
     @citycode2name.register(int)
-    def _citycode2name_int(self, code: int) -> Optional[str]:
-        """ Convert cityCode to cityName """
+    def _citycode2name_int(self,
+            code: int,
+            ascii: bool=False,
+        ) -> Optional[str]:
+        """ Convert cityCode to cityName
+            if set ``True`` to ascii, return cityname as alphabet_name
+        """
         if len(str(code)) == 6:
             code = validate_checkdigit(code)
         try:
-            name = self.__citycode2name[code]
+            name = [ self.__citycode2name[code],
+                     self.__citycode2alphabet[code]][ascii]
         except KeyError:
             name = None
         return name
 
     @citycode2name.register(str)
-    def _citycode2name_int(self, code: str) -> Optional[str]:
-        """ Convert cityCode to cityName """
+    def _citycode2name_str(self,
+            code: str,
+            ascii: bool=False,
+        ) -> Optional[str]:
+        """ Convert cityCode to cityName
+            if set ``True`` to ascii, return cityname as alphabet_name
+        """
         if len(code) == 6:
             code = validate_checkdigit(int(code), 5)
         else:
             code = int(code)
         try:
-            name = self.__citycode2name[code]
+            name = [ self.__citycode2name[code],
+                     self.__citycode2alphabet[code]][ascii]
         except:
             name = None
         return name
 
     @citycode2name.register(list)
-    def _citycode2name_list(self, code_list: List) -> List:
-        """ Convert list of cityCode to CityName """
-        name = [self.citycode2name(x) for x in code_list]
+    def _citycode2name_list(self,
+            code_list: List,
+            ascii: bool=False,
+        ) -> List:
+        """ Convert list of cityCode to CityName
+            if set ``True`` to ascii, return cityname as alphabet_name
+        """
+        name = [self.citycode2name(x, ascii) for x in code_list]
         return name
 
     @citycode2name.register(pd.Series)
-    def _citycode2name_series(self, code_series: pd.Series) -> pd.Series:
-        """ Convert pandas series of cityCode to cityName """
+    def _citycode2name_series(self,
+            code_series: pd.Series,
+            ascii: bool=False,
+        ) -> pd.Series:
+        """ Convert pandas series of cityCode to cityName
+            if set ``True`` to ascii, return cityname as alphabet_name
+        """
         try:
             code_series.astype(int)
-            name = code_series.map(self.__citycode2name)
+            name = [ code_series.map(self.__citycode2name),
+                     code_series.map(self.__citycode2alphabet)][ascii]
         except:
             name = pd.Series([])
+        return name
+
+    @singledispatchmethod
+    def cityname2normalize(self, arg: Any) -> Optional[int]:
+        """ Normalize cityName
+            if set ``True`` to ascii, return cityName as alphabet_name
+        """
+        raise TypeError('Unsupport Type')
+
+    @cityname2normalize.register(type(None))
+    def _cityname2normalize_str(self,
+            name: None,
+            ascii: bool=False,
+            ignore_case: bool=False
+        ):
+        return None
+
+    @cityname2normalize.register(str)
+    def _cityname2normalize_str(self,
+            name: str,
+            ascii: bool=False,
+            ignore_case: bool=False
+        ) -> Optional[int]:
+        """ Normalize cityName
+            if set ``True`` to ascii, return cityName as alphabet_name
+        """
+        try:
+            name = [name, name.title()][ignore_case]
+            name = [ self.__cityalphabet2name[name],
+                     self.__cityname2alphabet[name] ][ascii]
+        except KeyError:
+            name = None
+        return name
+
+    @cityname2normalize.register(list)
+    def _cityname2normalize_list(self,
+            name_list: List,
+            ascii: bool=False,
+            ignore_case: bool=False
+        ) -> List:
+        """ Convert list of cityName to cityCode
+            if set ``True`` to ascii, return cityName as alphabet_name
+        """
+        name = [self.cityname2normalize(x,ascii,ignore_case)
+                                        for x in name_list]
+        return name
+
+    @cityname2normalize.register(pd.Series)
+    def _cityname2normalize_series(self,
+            name_series: pd.Series,
+            checkdigit=False,
+            ascii: bool=False,
+            ignore_case: bool=False
+        ) -> pd.Series:
+        """ Convert pandas series of cityName to cityCode
+            if set ``True`` to ascii, return cityName as alphabet_name
+        """
+        try:
+            name_series = [name_series,
+                           name_series.str.title()][ignore_case]
+            name = [ name_series.map(self.__cityalphabet2name),
+                     name_series.map(self.__cityname2alphabet) ][ascii]
+        except KeyError:
+            name = pd.Series([])
+        return name
+
+    def get_prefcode(self, citycode: Union[int, str])-> Optional[int]:
+        if isinstance(citycode, int):
+            citycode = str(citycode)
+        try:
+            return int(citycode[:2])
+        except:
+            return None
+
+    @singledispatchmethod
+    def cityname2prefcode(self, arg: Any) -> Optional[int]:
+        """ dispatch function """
+        raise TypeError('Unsupport Type')
+
+    @cityname2prefcode.register(type(None))
+    def _cityname2prefcode_none(self,
+            name: None,
+            ignore_case: bool=False
+        ):
+        """ Catch None and return None """
+        return None
+
+    @cityname2prefcode.register(str)
+    def _cityname2prefcode_str(self,
+            name: str,
+            ignore_case: bool=False
+        ) -> Optional[int]:
+        """ Convert CityName to Prefecture Code"""
+        name = [name, name.title()][ignore_case]
+        code = self.__cityname2code[name]
+        prefcode = self.get_prefcode(code)
+        return prefcode
+
+    @cityname2prefcode.register(list)
+    def _cityname2prefcode_list(self,
+            name_list: List,
+            ignore_case: bool=False
+        ) -> List[Optional[int]]:
+        """ Convert list of cityName to Prefecture Code """
+        code = [self.cityname2prefcode(x, ignore_case) for x in name_list]
+        return code
+
+    @cityname2prefcode.register(pd.Series)
+    def _cityname2prefcode_series(self,
+            name_series: pd.Series,
+            ignore_case: bool=False
+        ) -> pd.Series:
+        """ Convert pandas series of cityName to Prefecture Code """
+        try:
+            name_series = [name_series,
+                           name_series.str.title()][ignore_case]
+            code = name_series.map(self.__cityname2code)
+            code = code.map(self.get_prefcode)
+        except KeyError:
+            code = pd.Series([None])
+        return code
+
+    @singledispatchmethod
+    def cityname2prefecture(self, arg: Any) -> Optional[int]:
+        """ dispatch function """
+        raise TypeError('Unsupport Type')
+
+    @cityname2prefecture.register(type(None))
+    def _cityname2prefecture_none(self,
+            name: None,
+            ascii: bool=False,
+            ignore_case: bool=False
+        ):
+        """ Catch None and return None """
+        return None
+
+    @cityname2prefecture.register(str)
+    def _cityname2prefecture_str(self,
+            name: str,
+            ascii: bool=False,
+            ignore_case: bool=False
+        ) -> Optional[str]:
+        """ Convert CityName to Prefecture Name"""
+        name = [name, name.title()][ignore_case]
+        code = self.cityname2prefcode(name)
+        name = code and self.code2name(code, ascii)
+        return name
+
+    @cityname2prefecture.register(list)
+    def _cityname2prefecture_list(self,
+            name_list: list,
+            ascii: bool=False,
+            ignore_case: bool=False
+        ) -> List[Optional[str]]:
+        """ Convert list of CityName to Prefecture Name"""
+        name = [self.cityname2prefecture(x, ascii,ignore_case)
+                                         for x in name_list]
+        return name
+
+    @cityname2prefecture.register(pd.Series)
+    def _cityname2prefecture_series(self,
+            name_series: pd.Series,
+            ascii: bool=False,
+            ignore_case: bool=False
+        ) -> pd.Series:
+        """ Convert pandas series of cityName to Prefecture Name """
+        try:
+            name_series = [name_series,
+                           name_series.str.title()][ignore_case]
+            code = name_series.map(self.cityname2prefcode)
+            name = code.apply(self.code2name, ascii=ascii)
+        except KeyError:
+            # v = [None]
+            name = pd.Series([None])
+        # return pd.Series(v)
         return name
 
     @singledispatchmethod
@@ -185,30 +383,48 @@ class JpCityCode(JpPrefecture):
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
+    @validate_city.register(type(None))
+    def _validate_city_none(self,
+            name: None,
+            ignore_case: bool=False
+        ) -> bool:
+        """ Catch None and return None """
+        return False
+
     @validate_city.register(str)
-    def _validate_city_str(self, name: str) -> Optional[str]:
+    def _validate_city_str(self,
+            name: str,
+            ignore_case: bool=False
+        ) -> bool:
         """ validate_city a cityName """
         try:
-            v = name in self.__name2citycode.keys()
+            name = [name, name.title()][ignore_case]
+            v = name in self.__cityname2code.keys()
         except:
             v = False
         return v
 
     @validate_city.register(list)
-    def _validate_city_list(self, name_list: List) -> List:
+    def _validate_city_list(self,
+            name_list: List,
+            ignore_case: bool=False
+        ) -> List[bool]:
         """ validate_city list of cityName """
         try:
-            v = [ self.validate_city(x) for x in name_list]
+            v = [ self.validate_city(x,ignore_case) for x in name_list]
         except:
             v = [False]
         return v
 
     @validate_city.register(pd.Series)
-    def _validate_city_series(self, name_series: pd.Series) -> pd.Series:
+    def _validate_city_series(self,
+            name_series: pd.Series,
+            ignore_case: bool=False
+        ) -> pd.Series:
         """ validate_city pandas series of cityName """
         try:
-            v = [ self.validate_city(x) for x in np.asarray(name_series)]
-            print(v)
+            v = [ self.validate_city(x,ignore_case)
+                                     for x in np.asarray(name_series)]
         except KeyError:
             v = [False]
         return pd.Series(v)

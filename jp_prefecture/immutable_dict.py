@@ -1,4 +1,7 @@
 class ImmutableDict(dict):
+    def __missing__(self, key):
+        return None
+
     def __setitem__(self, key, value):
         raise TypeError("%r object does not support item assignment" % type(self).__name__)
 

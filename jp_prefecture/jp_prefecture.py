@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from typing import List, Optional, Any
+from typing import List, Optional, Union, Any
 from .singledispatchmethod import singledispatchmethod
 from .immutable_dict import ImmutableDict
 
@@ -66,6 +66,7 @@ class JpPrefecture(object):
             index = pd.Index(range(1, 1 + len(self.__prefecture_names)),
                              name="code"),
         )
+        del self.__prefecture_names
 
         self.__code2name = ImmutableDict({
             code: name
@@ -89,29 +90,17 @@ class JpPrefecture(object):
             **{name: code
                for name, code in zip(self.prefectures.alphabet_name,
                                      self.prefectures.index)},
-            **{name.lower(): code
-               for name, code in zip(self.prefectures.alphabet_name,
-                                     self.prefectures.index)},
-            **{name.upper(): code
-               for name, code in zip(self.prefectures.alphabet_name,
-                                     self.prefectures.index)},
         })
 
         self.__alphabet2name = ImmutableDict({
             **{alphabet: name
             for alphabet, name in zip(self.prefectures.alphabet_name,
                                       self.prefectures.name)},
-            **{alphabet.lower(): name
-            for alphabet, name in zip(self.prefectures.alphabet_name,
-                                              self.prefectures.name)},
-            **{alphabet.upper(): name
-            for alphabet, name in zip(self.prefectures.alphabet_name,
-                                              self.prefectures.name)},
+            **{name: code
+               for name, code in zip(self.prefectures.short_name,
+                                     self.prefectures.name)},
             **{alphabet: name
             for alphabet, name in zip(self.prefectures.name,
-                                      self.prefectures.name)},
-            **{alphabet: name
-            for alphabet, name in zip(self.prefectures.short_name,
                                       self.prefectures.name)},
         })
 
@@ -125,12 +114,6 @@ class JpPrefecture(object):
             **{name: alphabet
               for name, alphabet in zip(self.prefectures.alphabet_name,
                                         self.prefectures.alphabet_name)},
-            **{name.lower(): alphabet
-              for name, alphabet in zip(self.prefectures.alphabet_name,
-                                        self.prefectures.alphabet_name)},
-            **{name.upper(): alphabet
-              for name, alphabet in zip(self.prefectures.alphabet_name,
-                                        self.prefectures.alphabet_name)},
     })
 
     @singledispatchmethod
@@ -138,25 +121,45 @@ class JpPrefecture(object):
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
+    @name2code.register(type(None))
+    def _name2code_none(self,
+            name: None,
+            ignore_case: bool=False,
+        ):
+        """ Catch None and return None """
+        return None
+
     @name2code.register(str)
-    def _name2code_str(self, name: str) -> Optional[int]:
+    def _name2code_str(self,
+            name: str,
+            ignore_case: bool=False,
+        ) -> Optional[int]:
         """ Convert prefecture name to code """
         try:
+            name = [name, name.capitalize()][ignore_case]
             code = self.__name2code[name]
         except KeyError:
             code = None
         return code
 
     @name2code.register(list)
-    def _name2code_list(self, name_list: List) -> List:
+    def _name2code_list(self,
+            name_list: List,
+            ignore_case: bool=False,
+        ) -> List:
         """ Convert list of prefecture name to code """
-        code = [self.name2code(x) for x in name_list]
+        code = [self.name2code(x, ignore_case) for x in name_list]
         return code
 
     @name2code.register(pd.Series)
-    def _name2code_series(self, name_series: pd.Series) -> pd.Series:
+    def _name2code_series(self,
+            name_series: pd.Series,
+            ignore_case: bool=False,
+        ) -> pd.Series:
         """ Convert pandas series of prefecture name to code """
         try:
+            name_series = [name_series,
+                           name_series.str.capitalize()][ignore_case]
             code = name_series.map(self.__name2code)
         except KeyError:
             code = pd.Series([])
@@ -164,198 +167,169 @@ class JpPrefecture(object):
 
     @singledispatchmethod
     def code2name(self, arg: Any) -> Optional[str]:
-        """ dispatch function """
+        """ Convert prefecture code to name """
         raise TypeError('Unsupport Type')
 
+    @code2name.register(type(None))
+    def _code2name_none(self,
+            codeL: None,
+            ascii: bool=False,
+        ):
+        """ Catch None and return None """
+        return None
+
     @code2name.register(int)
-    def _code2name_int(self, code: int) -> Optional[str]:
+    def _code2name_int(self,
+            code: Optional[int]=None,
+            ascii: bool=False,
+        ) -> Optional[str]:
         """ Convert prefecture code to name """
         try:
-            name = self.__code2name[code]
+            name = [self.__code2name[code],
+                    self.__code2alphabet[code]][ascii]
         except KeyError:
             name = None
         return name
 
     @code2name.register(str)
-    def _code2name_int(self, code: str) -> Optional[str]:
+    def _code2name_int(self,
+            code: str,
+            ascii: bool=False,
+        ) -> Optional[str]:
         """ Convert prefecture code to name """
         try:
-            name = self.__code2name[int(code)]
+            name = [self.__code2name[int(code)],
+                    self.__code2alphabet[int(code)]][ascii]
         except KeyError:
             name = None
         return name
 
     @code2name.register(list)
-    def _code2name_list(self, code_list: List) -> List:
+    def _code2name_list(self,
+            code_list: List,
+            ascii: bool=False,
+        ) -> List:
         """ Convert list of prefecture code to name """
-        name = [self.code2name(x) for x in code_list]
+        name = [self.code2name(x, ascii) for x in code_list]
         return name
 
     @code2name.register(pd.Series)
-    def _code2name_series(self, code_series: pd.Series) -> pd.Series:
+    def _code2name_series(self,
+            code_series: pd.Series,
+            ascii: bool=False,
+        ) -> pd.Series:
         """ Convert pandas series of prefecture code to alphabet_name """
         try:
             code_series = code_series.astype(int)
-            name = code_series.map(self.__code2name)
+            name = [ code_series.map(self.__code2name),
+                     code_series.map(self.__code2alphabet) ][ascii]
         except KeyError:
             name = pd.Series([])
         return name
 
+
     @singledispatchmethod
-    def code2alphabet(self, arg: Any) -> Optional[str]:
+    def name2normalize(self, arg: Any) -> Optional[int]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
-    @code2alphabet.register(int)
-    def _code2alphabet_int(self, code: int) -> Optional[str]:
-        """ Convert prefecture code to name """
+    @name2normalize.register(type(None))
+    def _name2normalize_none(self,
+            name: None,
+            ascii: bool=False,
+            ignore_case: bool=False
+        ) -> Optional[int]:
+        """ Catch None and return None """
+        return None
+
+    @name2normalize.register(str)
+    def _name2normalize_str(self,
+            name: str,
+            ascii: bool=False,
+            ignore_case: bool=False
+        ) -> Optional[int]:
+        """ Convert prefecture name to name or alphabet_name """
         try:
-            alphabet = self.__code2alphabet[code]
-        except KeyError:
-            alphabet = None
-        return alphabet
-
-    @code2alphabet.register(str)
-    def _code2alphabet_int(self, code: str) -> Optional[str]:
-        """ Convert prefecture code to name """
-        try:
-            alphabet = self.__code2alphabet[int(code)]
-        except KeyError:
-            alphabet = None
-        return alphabet
-
-    @code2alphabet.register(list)
-    def _code2alphabet_list(self, code_list: List) -> List:
-        """ Convert list of prefecture code to name """
-        alphabet = [self.code2alphabet(x) for x in code_list]
-        return alphabet
-
-    @code2alphabet.register(pd.Series)
-    def _code2alphabet_series(self, code_series: pd.Series) -> pd.Series:
-        """ Convert pandas series of prefecture code to alphabet_name """
-        try:
-            code_series = code_series.astype(int)
-            alphabet = code_series.map(self.__code2alphabet)
-        except KeyError:
-            alphabet = pd.Series([])
-        return alphabet
-
-    @singledispatchmethod
-    def alphabet2code(self, arg: Any) -> Optional[str]:
-        """ dispatch function """
-        raise TypeError('Unsupport Type')
-
-    @alphabet2code.register(str)
-    def _alphabet2code_str(self, alphabet_name: str) -> Optional[str]:
-        """ Convert a prefecture alphabet_name to code """
-        try:
-            code = self.__alphabet2code[alphabet_name]
-        except KeyError:
-            code = None
-        return code
-
-    @alphabet2code.register(list)
-    def _alphabet2code_list(self, alphabet_name_list: List) -> List:
-        """ Convert list of prefecture alphabet_name to code """
-        code = [self.alphabet2code(x) for x in alphabet_name_list]
-        return name
-
-    @alphabet2code.register(pd.Series)
-    def _alphabet2code_series(self, alphabet_name_series: pd.Series) ->pd.Series:
-        """ Convert pandas series of prefecture alphabet_name to code """
-        try:
-            code = alphabet_name_series.map(self.__alphabet2code)
-        except KeyError:
-            code = pd.Series([])
-        return name
-
-    @singledispatchmethod
-    def name2alphabet(self, arg: Any) -> Optional[str]:
-        """ dispatch function """
-        raise TypeError('Unsupport Type')
-
-    @name2alphabet.register(str)
-    def _name2alphabet_str(self, name: str) -> Optional[str]:
-        """ Convert a prefecture name to alphabet_name """
-        try:
-            alphabet = self.__name2alphabet[name]
-        except KeyError:
-            alphabet = None
-        return alphabet
-
-    @name2alphabet.register(list)
-    def _name2alphabet_list(self, name_list: List) -> List:
-        """ Convert list of prefecture name to alphabet_name """
-        alphabet = [self.name2alphabet(x) for x in name_list]
-        return alphabet
-
-    @name2alphabet.register(pd.Series)
-    def _name2alphabet_series(self, name_series: pd.Series) ->pd.Series:
-        """ Convert pandas series of prefecture name to alphabet_name """
-        try:
-            alphabet = name_series.map(self.__name2alphabet)
-        except KeyError:
-            alphabet = pd.Series([])
-        return alphabet
-
-    @singledispatchmethod
-    def alphabet2name(self, arg: Any) -> Optional[str]:
-        """ dispatch function """
-        raise TypeError('Unsupport Type')
-
-    @alphabet2name.register(str)
-    def _alphabet2name_str(self, alphabet_name: str) -> Optional[str]:
-        """ Convert a prefecture alphabet_name to name """
-        try:
-            name = self.__alphabet2name[alphabet_name]
+            name = [name, name.capitalize()][ignore_case]
+            name = [ self.__alphabet2name[name],
+                     self.__name2alphabet[name] ][ascii]
         except KeyError:
             name = None
         return name
 
-    @alphabet2name.register(list)
-    def _alphabet2name_list(self, alphabet_name_list: List) -> List:
-        """ Convert list prefecture alphabet_name to name """
-        name = [self.alphabet2name(x) for x in alphabet_name_list]
-        return name
+    @name2normalize.register(list)
+    def _name2normalize_list(self,
+            name_list: List,
+            ascii: bool=False,
+            ignore_case: bool=False
+        ) -> List:
+        """ Convert list of prefecture name to alphabet_name """
+        code = [self.name2normalize(x, ascii, ignore_case) for x in name_list]
+        return code
 
-    @alphabet2name.register(pd.Series)
-    def _alphabet2name_series(self, alphabet_name_series: pd.Series) -> pd.Series:
-        """ Convert list prefecture alphabet_name to name """
+    @name2normalize.register(pd.Series)
+    def _name2normalize_series(self,
+            name_series: pd.Series,
+            ascii: bool=False,
+            ignore_case: bool=False
+        ) -> pd.Series:
+        """ Convert pandas series of prefecture name to alphabet_name """
         try:
-            name = alphabet_name_series.map(self.__alphabet2name)
+            name_series = [name_series,
+                           name_series.str.capitalize()][ignore_case]
+            code = [ name_series.map(self.__alphabet2name),
+                     name_series.map(self.__name2alphabet) ][ascii]
         except KeyError:
-            name = pd.Series([])
-        return name
+            code = pd.Series([])
+        return code
+
 
     @singledispatchmethod
     def validate(self, arg: Any) -> Optional[str]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
+    @validate.register(type(None))
+    def _validate_none(self,
+            name: None,
+            ignore_case: bool=False
+        ):
+        """ Catch None and return None """
+        return None
+
     @validate.register(str)
-    def _validate_str(self, name: str) -> Optional[str]:
+    def _validate_str(self,
+            name: str,
+            ignore_case: bool=False
+        ) -> Optional[str]:
         """ validate a prefecture name """
         try:
+            name = [name, name.capitalize()][ignore_case]
             v = name in self.__name2code.keys()
         except:
             v = False
         return v
 
     @validate.register(list)
-    def _validate_list(self, name_list: List) -> List:
+    def _validate_list(self,
+            name_list: List,
+            ignore_case: bool=False
+        ) -> List:
         """ validate list of prefecture name """
         try:
-            v = [ self.validate(x) for x in name_list]
+            v = [ self.validate(x, ignore_case) for x in name_list]
         except:
             v = [False]
         return v
 
     @validate.register(pd.Series)
-    def _validate_series(self, name_series: pd.Series) -> pd.Series:
+    def _validate_series(self,
+            name_series: pd.Series,
+            ignore_case: bool=False
+        ) -> pd.Series:
         """ validate pandas series of prefecture name """
         try:
-            v = [ self.validate(x) for x in np.asarray(name_series)]
-            print(v)
+            v = [ self.validate(x, ignore_case) for x in np.asarray(name_series)]
         except KeyError:
             v = [False]
         return pd.Series(v)

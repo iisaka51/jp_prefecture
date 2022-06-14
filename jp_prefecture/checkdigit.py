@@ -53,7 +53,7 @@ def calc_checkdigit(
         num_digits: Optional[int]=None,
         weights: Optional[list]=None,
         only_checkdigit: bool = False,
-    ) -> Union[int, str]:
+    ) -> Optional[Union[int, str]]:
     """ Validate check-digit as mod 11.
     Parameters
     ----------
@@ -71,23 +71,27 @@ def calc_checkdigit(
          if set ``True``, return only check digit.
 
     Returns:
-        result: Union[int, str]
+        result: Optional[Union[int, str]]
         return code is same as type at input type of `number`.
         input str -> return str, input int -> ireturn int.
     """
 
-    input_as_int = False
     if isinstance(number, int):
         input_as_int = True
         number = str(number)
+    elif isinstance(number, str):
+        input_as_int = False
+    else:
+        return None
 
     for r in ((".", ""),("-","")):
         number = number.replace(*r)
 
-    if not num_digits:
+    if number and not num_digits:
         num_digits = len(number)
 
-    number = number.zfill(num_digits)
+    if len(number) < num_digits:
+        number = number.zfill(num_digits)
     weights = weights or [x for x in range(num_digits+1, 1, -1)]
     result = sum(w * (int(x)) for w, x in zip(weights, number))
     checkdigit = str(11 - (result % 11))
