@@ -1,12 +1,12 @@
 # jp_prefecture.
 > Japan prefecture and city names and codes
 
-Simple utility to convert the name of japanese prefectures.
+Simple utility to convert the name of japanese prefectures and cities.
 
 - full_name from/to code (JIS X 0401-1973, JIX X 0402).
 - short_name to full_name (prefecture only)
 - alphabet_name from/to full_name
-- validate for full_name and short_name, alphabet_name and city name.
+- validate for full_name and short_name, alphabet_name.
 - allow code as str or int.
 - support lists and pandas serires as input.
 - support checkdigits for citycode.
@@ -319,9 +319,9 @@ assert ( s1.equals(s2)
 
 ```
 
-## class JpCityCode
+## class JpCity
 
-JpCityCode class is subclass of JpPrefecture.
+JpCity class is subclass of JpPrefecture.
 
 - `citycode2name()`
 - `cityname2code()`

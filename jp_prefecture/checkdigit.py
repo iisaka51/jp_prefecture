@@ -50,7 +50,7 @@ def validate_checkdigit(
 
 def calc_checkdigit(
         number: Union[int, str],
-        num_digits: Optional[int]=None,
+        num_digits: int=0,
         weights: Optional[list]=None,
         only_checkdigit: bool = False,
     ) -> Optional[Union[int, str]]:
@@ -90,15 +90,16 @@ def calc_checkdigit(
     if number and not num_digits:
         num_digits = len(number)
 
-    if len(number) < num_digits:
+    if num_digits and len(number) < num_digits:
         number = number.zfill(num_digits)
+
     weights = weights or [x for x in range(num_digits+1, 1, -1)]
     result = sum(w * (int(x)) for w, x in zip(weights, number))
-    checkdigit = str(11 - (result % 11))
-    number = number + checkdigit
+    checkdigit = str(11 - (result % 11))   # type: ignore
+    number = number + checkdigit           # type: ignore
     if input_as_int:
         number = int(number)
-        checkdigit = int(checkdigit)
+        checkdigit = int(checkdigit)       # type: ignore
     if only_checkdigit:
         return checkdigit
     else:

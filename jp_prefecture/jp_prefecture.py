@@ -117,7 +117,7 @@ class JpPrefecture(object):
     })
 
     @singledispatchmethod
-    def name2code(self, arg: Any) -> Optional[int]:
+    def name2code(self, arg: Any) -> Union[list,Optional[int],pd.Series]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
@@ -144,9 +144,9 @@ class JpPrefecture(object):
 
     @name2code.register(list)
     def _name2code_list(self,
-            name_list: List,
+            name_list: List[str],
             ignore_case: bool=False,
-        ) -> List:
+        ) -> list:
         """ Convert list of prefecture name to code """
         code = [self.name2code(x, ignore_case) for x in name_list]
         return code
@@ -166,7 +166,7 @@ class JpPrefecture(object):
         return code
 
     @singledispatchmethod
-    def code2name(self, arg: Any) -> Optional[str]:
+    def code2name(self, arg: Any) -> Union[Optional[str],list,pd.Series]:
         """ Convert prefecture code to name """
         raise TypeError('Unsupport Type')
 
@@ -180,7 +180,7 @@ class JpPrefecture(object):
 
     @code2name.register(int)
     def _code2name_int(self,
-            code: Optional[int]=None,
+            code: int,
             ascii: bool=False,
         ) -> Optional[str]:
         """ Convert prefecture code to name """
@@ -192,7 +192,7 @@ class JpPrefecture(object):
         return name
 
     @code2name.register(str)
-    def _code2name_int(self,
+    def _code2name_str(self,
             code: str,
             ascii: bool=False,
         ) -> Optional[str]:
@@ -206,9 +206,9 @@ class JpPrefecture(object):
 
     @code2name.register(list)
     def _code2name_list(self,
-            code_list: List,
+            code_list: list,
             ascii: bool=False,
-        ) -> List:
+        ) -> list:
         """ Convert list of prefecture code to name """
         name = [self.code2name(x, ascii) for x in code_list]
         return name
@@ -229,7 +229,7 @@ class JpPrefecture(object):
 
 
     @singledispatchmethod
-    def name2normalize(self, arg: Any) -> Optional[int]:
+    def name2normalize(self, arg: Any) -> Union[Optional[str],list,pd.Series]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
@@ -238,7 +238,7 @@ class JpPrefecture(object):
             name: None,
             ascii: bool=False,
             ignore_case: bool=False
-        ) -> Optional[int]:
+        ):
         """ Catch None and return None """
         return None
 
@@ -247,22 +247,22 @@ class JpPrefecture(object):
             name: str,
             ascii: bool=False,
             ignore_case: bool=False
-        ) -> Optional[int]:
+        ) -> Optional[str]:
         """ Convert prefecture name to name or alphabet_name """
         try:
             name = [name, name.capitalize()][ignore_case]
-            name = [ self.__alphabet2name[name],
+            normalize = [ self.__alphabet2name[name],
                      self.__name2alphabet[name] ][ascii]
         except KeyError:
-            name = None
-        return name
+            normalize = None
+        return normalize
 
     @name2normalize.register(list)
     def _name2normalize_list(self,
-            name_list: List,
+            name_list: list,
             ascii: bool=False,
             ignore_case: bool=False
-        ) -> List:
+        ) -> list:
         """ Convert list of prefecture name to alphabet_name """
         code = [self.name2normalize(x, ascii, ignore_case) for x in name_list]
         return code
@@ -285,7 +285,7 @@ class JpPrefecture(object):
 
 
     @singledispatchmethod
-    def validate(self, arg: Any) -> Optional[str]:
+    def validate(self, arg: Any) -> Optional[Union[bool,List[bool],pd.Series]]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
@@ -293,7 +293,7 @@ class JpPrefecture(object):
     def _validate_none(self,
             name: None,
             ignore_case: bool=False
-        ):
+        ) -> Union[bool,List[bool],pd.Series]:
         """ Catch None and return None """
         return None
 
@@ -301,7 +301,7 @@ class JpPrefecture(object):
     def _validate_str(self,
             name: str,
             ignore_case: bool=False
-        ) -> Optional[str]:
+        ) -> bool:
         """ validate a prefecture name """
         try:
             name = [name, name.capitalize()][ignore_case]
@@ -312,9 +312,9 @@ class JpPrefecture(object):
 
     @validate.register(list)
     def _validate_list(self,
-            name_list: List,
+            name_list: List[str],
             ignore_case: bool=False
-        ) -> List:
+        ) -> list:
         """ validate list of prefecture name """
         try:
             v = [ self.validate(x, ignore_case) for x in name_list]

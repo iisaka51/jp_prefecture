@@ -4,7 +4,7 @@ try:
 except ImportError:
     from functools import singledispatch, update_wrapper
 
-    def singledispatchmethod(func):
+    def singledispatchmethod(func):  # type: ignore
         dispatcher = singledispatch(func)
         def wrapper(*args, **kw):
             return dispatcher.dispatch(args[1].__class__)(*args, **kw)

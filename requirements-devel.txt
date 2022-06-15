@@ -1,3 +1,6 @@
 pytest
 invoke
 pympler
+twine
+wheel
+mypy

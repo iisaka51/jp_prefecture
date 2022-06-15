@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from typing import List, Optional, Union, Any
+from typing import Optional, Union, Any
 from pathlib import Path
 from .singledispatchmethod import singledispatchmethod
 from .immutable_dict import ImmutableDict
@@ -8,7 +8,7 @@ from .checkdigit import calc_checkdigit, validate_checkdigit
 from .jp_prefecture import JpPrefecture
 from .utils import is_alpha
 
-class JpCityCode(JpPrefecture):
+class JpCity(JpPrefecture):
     def __init__(self):
         # Cities Code: JIS X 0402
 
@@ -71,7 +71,7 @@ class JpCityCode(JpPrefecture):
         })
 
     @singledispatchmethod
-    def cityname2code(self, arg: Any) -> Optional[int]:
+    def cityname2code(self, arg: Any) -> Union[Optional[int],list,pd.Series]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
@@ -101,10 +101,10 @@ class JpCityCode(JpPrefecture):
 
     @cityname2code.register(list)
     def _cityname2code_list(self,
-            name_list: List,
+            name_list: list,
             ignore_case: bool=False,
             checkdigit: bool=False
-        ) -> List:
+        ) -> list:
         """ Convert list of cityName to cityCode """
         code = [self.cityname2code(x, ignore_case, checkdigit)
                                    for x in name_list]
@@ -129,12 +129,12 @@ class JpCityCode(JpPrefecture):
 
 
     @singledispatchmethod
-    def citycode2name(self, arg: Any) -> Optional[str]:
+    def citycode2name(self, arg: Any) -> Union[Optional[str],list,pd.Series]:
         """ Convert cityCode to cityName """
         raise TypeError('Unsupport Type')
 
     @citycode2name.register(type(None))
-    def _citycode2name_int(self,
+    def _citycode2name_none(self,
             code: None,
             ascii: bool=False,
         ):
@@ -149,7 +149,7 @@ class JpCityCode(JpPrefecture):
             if set ``True`` to ascii, return cityname as alphabet_name
         """
         if len(str(code)) == 6:
-            code = validate_checkdigit(code)
+            code = validate_checkdigit(code)  # type: ignore
         try:
             name = [ self.__citycode2name[code],
                      self.__citycode2alphabet[code]][ascii]
@@ -166,9 +166,9 @@ class JpCityCode(JpPrefecture):
             if set ``True`` to ascii, return cityname as alphabet_name
         """
         if len(code) == 6:
-            code = validate_checkdigit(int(code), 5)
+            code = validate_checkdigit(int(code), 5)  # type: ignore
         else:
-            code = int(code)
+            code = int(code)   # type: ignore
         try:
             name = [ self.__citycode2name[code],
                      self.__citycode2alphabet[code]][ascii]
@@ -178,9 +178,9 @@ class JpCityCode(JpPrefecture):
 
     @citycode2name.register(list)
     def _citycode2name_list(self,
-            code_list: List,
+            code_list: list,
             ascii: bool=False,
-        ) -> List:
+        ) -> list:
         """ Convert list of cityCode to CityName
             if set ``True`` to ascii, return cityname as alphabet_name
         """
@@ -204,14 +204,15 @@ class JpCityCode(JpPrefecture):
         return name
 
     @singledispatchmethod
-    def cityname2normalize(self, arg: Any) -> Optional[int]:
+    def cityname2normalize(self, arg: Any
+        ) -> Union[Optional[int],list,pd.Series]:
         """ Normalize cityName
             if set ``True`` to ascii, return cityName as alphabet_name
         """
         raise TypeError('Unsupport Type')
 
     @cityname2normalize.register(type(None))
-    def _cityname2normalize_str(self,
+    def _cityname2normalize_none(self,
             name: None,
             ascii: bool=False,
             ignore_case: bool=False
@@ -223,7 +224,7 @@ class JpCityCode(JpPrefecture):
             name: str,
             ascii: bool=False,
             ignore_case: bool=False
-        ) -> Optional[int]:
+        ) -> Optional[str]:
         """ Normalize cityName
             if set ``True`` to ascii, return cityName as alphabet_name
         """
@@ -232,15 +233,15 @@ class JpCityCode(JpPrefecture):
             name = [ self.__cityalphabet2name[name],
                      self.__cityname2alphabet[name] ][ascii]
         except KeyError:
-            name = None
+            name = None    # type: ignore
         return name
 
     @cityname2normalize.register(list)
     def _cityname2normalize_list(self,
-            name_list: List,
+            name_list: list,
             ascii: bool=False,
             ignore_case: bool=False
-        ) -> List:
+        ) -> list:
         """ Convert list of cityName to cityCode
             if set ``True`` to ascii, return cityName as alphabet_name
         """
@@ -276,7 +277,8 @@ class JpCityCode(JpPrefecture):
             return None
 
     @singledispatchmethod
-    def cityname2prefcode(self, arg: Any) -> Optional[int]:
+    def cityname2prefcode(self, arg: Any,
+        ) -> Union[Optional[int],list,pd.Series]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
@@ -301,9 +303,9 @@ class JpCityCode(JpPrefecture):
 
     @cityname2prefcode.register(list)
     def _cityname2prefcode_list(self,
-            name_list: List,
+            name_list: list,
             ignore_case: bool=False
-        ) -> List[Optional[int]]:
+        ) -> list:
         """ Convert list of cityName to Prefecture Code """
         code = [self.cityname2prefcode(x, ignore_case) for x in name_list]
         return code
@@ -324,7 +326,7 @@ class JpCityCode(JpPrefecture):
         return code
 
     @singledispatchmethod
-    def cityname2prefecture(self, arg: Any) -> Optional[int]:
+    def cityname2prefecture(self, arg: Any) -> Union[Optional[str],list,pd.Series]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
@@ -346,7 +348,7 @@ class JpCityCode(JpPrefecture):
         """ Convert CityName to Prefecture Name"""
         name = [name, name.title()][ignore_case]
         code = self.cityname2prefcode(name)
-        name = code and self.code2name(code, ascii)
+        name = code and self.code2name(code, ascii)  # type: ignore
         return name
 
     @cityname2prefecture.register(list)
@@ -354,7 +356,7 @@ class JpCityCode(JpPrefecture):
             name_list: list,
             ascii: bool=False,
             ignore_case: bool=False
-        ) -> List[Optional[str]]:
+        ) -> list:
         """ Convert list of CityName to Prefecture Name"""
         name = [self.cityname2prefecture(x, ascii,ignore_case)
                                          for x in name_list]
@@ -379,7 +381,7 @@ class JpCityCode(JpPrefecture):
         return name
 
     @singledispatchmethod
-    def validate_city(self, arg: Any) -> Optional[str]:
+    def validate_city(self, arg: Any) -> Optional[Union[bool,list,pd.Series]]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
@@ -406,9 +408,9 @@ class JpCityCode(JpPrefecture):
 
     @validate_city.register(list)
     def _validate_city_list(self,
-            name_list: List,
+            name_list: list,
             ignore_case: bool=False
-        ) -> List[bool]:
+        ) -> list:
         """ validate_city list of cityName """
         try:
             v = [ self.validate_city(x,ignore_case) for x in name_list]
@@ -429,4 +431,4 @@ class JpCityCode(JpPrefecture):
             v = [False]
         return pd.Series(v)
 
-jp_cities = JpCityCode()
+jp_cities = JpCity()
