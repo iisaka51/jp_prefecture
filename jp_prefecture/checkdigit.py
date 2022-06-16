@@ -31,8 +31,13 @@ def validate_checkdigit(
     for r in ((".", ""),("-","")):
         number = number.replace(*r)
 
-    check_digit = int(number[-1])
-    number = number[:-1]
+    number=number.zfill(num_digits)
+    if len(number) != num_digits:
+        check_digit = int(number[-1])
+        number = number[:-1]
+    else:
+        return [number, int(number)][input_as_int]
+
     len_number = len(number)
     if not num_digits:
         num_digits = len_number
@@ -44,7 +49,7 @@ def validate_checkdigit(
         result = sum(w * (int(x)) for w, x in zip(weights, number))
         result = (11 - (result % 11)) == check_digit
 
-    number = int(number) if input_as_int else number
+    number = [number, int(number)][input_as_int]
     result = number if result else None
     return result
 

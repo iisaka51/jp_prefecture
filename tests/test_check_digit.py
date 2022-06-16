@@ -20,6 +20,22 @@ class TestClass:
         assert ( validate_checkdigit("261008")
                  == None )
 
+    def test_validate_checkdigit_as_str_no_checkdigit(self):
+        assert ( validate_checkdigit("26100", 5)
+                 == "26100" )
+
+    def test_validate_checkdigit_as_int_no_checkdigit(self):
+        assert ( validate_checkdigit(26100, 5)
+                 == 26100 )
+
+    def test_validate_checkdigit_as_int_no_checkdigit_short(self):
+        assert ( validate_checkdigit(1100, 5)
+                 == 1100 )
+
+    def test_validate_checkdigit_as_str_no_checkdigit_short(self):
+        assert ( validate_checkdigit("1100", 5)
+                 == "01100" )
+
     def test_validate_checkdigit_as_str_short(self):
         assert ( validate_checkdigit("2610", 5)
                  == None )
