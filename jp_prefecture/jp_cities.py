@@ -10,7 +10,7 @@ from .utils import is_alpha
 
 class JpCity(JpPrefecture):
     def __init__(self):
-        # Cities Code: JIS X 0402
+        # City Code: JIS X 0402
 
         super().__init__()
         self.cities = pd.read_csv(Path(__file__).parent / 'data/cities.csv',
@@ -20,6 +20,8 @@ class JpCity(JpPrefecture):
                                                 downcast='integer')
         self.cities['cityCode'] = pd.to_numeric(self.cities['cityCode'],
                                                 downcast='integer')
+        self.cities['latitude'].astype(float)
+        self.cities['longitude'].astype(float)
         self.cities['bigCityFlag'] = pd.to_numeric(self.cities['bigCityFlag'],
                                                 downcast='integer')
         self.__citycode2name = ImmutableDict({
@@ -71,7 +73,9 @@ class JpCity(JpPrefecture):
         })
 
     @singledispatchmethod
-    def cityname2code(self, arg: Any) -> Union[Optional[int],list,pd.Series]:
+    def cityname2code(self,
+            arg: Any
+        ) -> Union[Optional[Union[int,str]],list,pd.Series]:
         """ dispatch function """
         raise TypeError('Unsupport Type')
 
@@ -79,8 +83,9 @@ class JpCity(JpPrefecture):
     def _cityname2code_none(self,
             name: str,
             ignore_case: bool=False,
-            checkdigit: bool=False
-        ) -> Optional[int]:
+            checkdigit: bool=False,
+            as_str: bool=False,
+        ) -> Optional[Union[int,str]]:
         """ Catch None and return None """
         return None
 
@@ -88,13 +93,16 @@ class JpCity(JpPrefecture):
     def _cityname2code_str(self,
             name: str,
             ignore_case: bool=False,
-            checkdigit: bool=False
-        ) -> Optional[int]:
+            checkdigit: bool=False,
+            as_str: bool=False,
+        ) -> Optional[str]:
         """ Convert cityName to cityCode """
         try:
             name = [name, name.title()][ignore_case]
             code = self.__cityname2code[name]
-            code = code and [code, calc_checkdigit(code)][checkdigit]
+            if code:
+                code = [code, str(code).zfill(5)][as_str]
+                code = [code, calc_checkdigit(code)][checkdigit]
         except KeyError:
             code = None
         return code
@@ -103,7 +111,8 @@ class JpCity(JpPrefecture):
     def _cityname2code_list(self,
             name_list: list,
             ignore_case: bool=False,
-            checkdigit: bool=False
+            checkdigit: bool=False,
+            as_str: bool=False,
         ) -> list:
         """ Convert list of cityName to cityCode """
         code = [self.cityname2code(x, ignore_case, checkdigit)
@@ -114,7 +123,8 @@ class JpCity(JpPrefecture):
     def _cityname2code_series(self,
             name_series: pd.Series,
             ignore_case: bool=False,
-            checkdigit: bool=False
+            checkdigit: bool=False,
+            as_str: bool=False,
         ) -> pd.Series:
         """ Convert pandas series of cityName to cityCode """
         try:
@@ -276,6 +286,22 @@ class JpCity(JpPrefecture):
         except:
             return None
 
+    def citycode2normalize(self,
+            citycode: Union[int, str],
+            as_str: bool=False,
+        )-> Optional[int]:
+        if isinstance(citycode, int):
+            citycode = str(citycode).zfill(5)
+
+        try:
+            if len(citycode) == 6:
+                citycode = validate_checkdigit(citycode)  # type: ignore
+            citycode = [int(citycode), citycode][as_str]
+        except:
+            citycode = None
+
+        return citycode
+
     @singledispatchmethod
     def cityname2prefcode(self, arg: Any,
         ) -> Union[Optional[int],list,pd.Series]:
@@ -379,6 +405,115 @@ class JpCity(JpPrefecture):
             name = pd.Series([None])
         # return pd.Series(v)
         return name
+
+
+    @singledispatchmethod
+    def cityname2geodetic(self,
+            arg: Any,
+        ) -> Union[Optional[tuple],list,pd.DataFrame]:
+        """ dispatch function """
+        raise TypeError('Unsupport Type')
+
+    @cityname2geodetic.register(str)
+    def _cityname2geodetic_str(self,
+            name: str,
+            ignore_case: bool=False
+        ) -> Optional[tuple]:
+        """ Return Latitude and Longitude of CityName """
+        code = self.cityname2code(name, ignore_case)
+        if code:
+            city = self.cities.loc[self.cities['cityCode'] == code]
+            geodetic = ( city['latitude'].values[0],
+                         city['longitude'].values[0] )
+        else:
+            geodetic = None    # type: ignore
+        return geodetic
+
+    @cityname2geodetic.register(list)
+    def _cityname2geodetic_list(self,
+            name_list: list,
+            ignore_case: bool=False
+        ) -> list:
+        """ Return Latitude and Longitude of CityName """
+        code = self.cityname2code(name_list, ignore_case)
+        geodetic = list()
+        for c in code:
+            city = self.cities.loc[self.cities['cityCode'] == c]
+            pos = ( city['latitude'].values[0],
+                    city['longitude'].values[0] )
+            geodetic.append(pos)
+        if len(geodetic) == 0:
+            geodetic = None    # type: ignore
+        return geodetic
+
+    @cityname2geodetic.register(pd.Series)
+    def _cityname2geodetic_series(self,
+            name_series: pd.Series,
+            ignore_case: bool=False
+        ) -> pd.DataFrame:
+        """ Return Latitude and Longitude of CityName """
+        code = name_series.apply(self.cityname2code, ignore_case)
+        geodetic = self.cities.loc[self.cities['cityCode'].isin(code.values),
+                                   ['latitude','longitude']]
+        geodetic.insert(0, 'cityName', name_series.values )
+        return geodetic
+
+    @singledispatchmethod
+    def citycode2geodetic(self,
+            arg: Any,
+        ) -> Union[Optional[tuple],list,pd.DataFrame]:
+        """ dispatch function """
+        raise TypeError('Unsupport Type')
+
+    @citycode2geodetic.register(str)
+    @citycode2geodetic.register(int)
+    def _citycode2geodetic(self,
+            code: Union[int,str],
+            ignore_case: bool=False
+        ) -> Optional[tuple]:
+        """ Return Latitude and Longitude of CityName """
+
+        citycode = self.citycode2normalize(code)
+        if citycode:
+            city = self.cities.loc[self.cities['cityCode'] == citycode]
+            geodetic = ( city['latitude'].values[0],
+                         city['longitude'].values[0] )
+        else:
+            geodetic = None    # type: ignore
+        return geodetic
+
+    @citycode2geodetic.register(list)
+    def _citycode2geodetic_list(self,
+            code_list: list,
+            ignore_case: bool=False
+        ) -> list:
+        """ Return Latitude and Longitude of CityName """
+        city_codes = [ self.citycode2normalize(x) for x in code_list ]
+        geodetic = list()
+        try:
+            for c in city_codes:
+                city = self.cities.loc[self.cities['cityCode'] == c]
+                pos = ( city['latitude'].values[0],
+                        city['longitude'].values[0] )
+                geodetic.append(pos)
+        except:
+            geodetic = list()
+
+        if len(geodetic) == 0:
+            geodetic = None    # type: ignore
+        return geodetic
+
+    @citycode2geodetic.register(pd.Series)
+    def _citycodegeodetic_series(self,
+            code_series: pd.Series,
+            ignore_case: bool=False
+        ) -> pd.DataFrame:
+        """ Return Latitude and Longitude of CityName """
+        city_codes =  code_series.map(self.citycode2normalize)
+        geodetic = self.cities.loc[( self.cities['cityCode']
+                                         .isin(city_codes.values)),
+                                     ['cityCode','latitude','longitude']]
+        return geodetic
 
     @singledispatchmethod
     def validate_city(self, arg: Any) -> Optional[Union[bool,list,pd.Series]]:

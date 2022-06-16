@@ -10,6 +10,7 @@ Simple utility to convert the name of japanese prefectures and cities.
 - allow code as str or int.
 - support lists and pandas serires as input.
 - support checkdigits for citycode.
+- get geodetic(latitude, longitude) from cityCode or cityName
 
 Reference
 
@@ -99,36 +100,36 @@ In [4]:
 ## Dataframe of Cities
 
 ```python
-In [1]: from jp_prefecture.jp_cities import jp_cities as jp
-
 In [2]: jp.cities
 Out[2]:
-      prefCode  cityCode cityName              cityAlphabet  bigCityFlag
-0            1      1100      札幌市               Sapporo-shi            2
-1            1      1101   札幌市中央区       Sapporo-shi Chuo-ku            1
-2            1      1102    札幌市北区       Sapporo-shi Kita-ku            1
-3            1      1103    札幌市東区    Sapporo-shi Higashi-ku            1
-4            1      1104   札幌市白石区  Sapporo-shi Shiroishi-ku            1
-...        ...       ...      ...                       ...          ...
-1917        47     47361     久米島町              Kumejima-cho            0
-1918        47     47362     八重瀬町                 Yaese-cho            0
-1919        47     47375     多良間村                Tarama-son            0
-1920        47     47381      竹富町              Taketomi-cho            0
-1921        47     47382     与那国町              Yonaguni-cho            0
+      prefCode  cityCode  cityName              cityAlphabet  latitude  longitude  bigCityFlag
+0            1      1100       札幌市               Sapporo-shi   43.0351   141.2049            2
+1            1      1101    札幌市中央区       Sapporo-shi Chuo-ku   43.0422    43.0422            1
+2            1      1102     札幌市北区       Sapporo-shi Kita-ku   43.1571    43.1571            1
+3            1      1103     札幌市東区    Sapporo-shi Higashi-ku   43.1208    43.1208            1
+4            1      1104    札幌市白石区  Sapporo-shi Shiroishi-ku   43.0716    43.0716            1
+...        ...       ...       ...                       ...       ...        ...          ...
+1909        47     47361   島尻郡久米島町  Shimajiri-gun Kumejim...   26.3474    26.3474            0
+1910        47     47362   島尻郡八重瀬町   Shimajiri-gun Yaese-cho   26.1260    26.1260            0
+1911        47     47375   宮古郡多良間村     Miyako-gun Tarama-son   24.6578    24.6578            0
+1912        47     47381   八重山郡竹富町  Yaeyama-gun Taketomi-cho   24.2371    24.2371            0
+1913        47     47382  八重山郡与那国町  Yaeyama-gun Yonaguni-cho   24.4559    24.4559            0
 
 In [3]: jp.cities.info()
 <class 'pandas.core.frame.DataFrame'>
-Int64Index: 1922 entries, 0 to 1921
-Data columns (total 5 columns):
+Int64Index: 1914 entries, 0 to 1913
+Data columns (total 7 columns):
  #   Column        Non-Null Count  Dtype
 ---  ------        --------------  -----
- 0   prefCode      1922 non-null   int8
- 1   cityCode      1922 non-null   int32
- 2   cityName      1922 non-null   object
- 3   cityAlphabet  1922 non-null   object
- 4   bigCityFlag   1922 non-null   int8
-dtypes: int32(1), int8(2), object(2)
-memory usage: 56.3+ KB
+ 0   prefCode      1914 non-null   int8
+ 1   cityCode      1914 non-null   int32
+ 2   cityName      1914 non-null   object
+ 3   cityAlphabet  1914 non-null   object
+ 4   latitude      1914 non-null   float64
+ 5   longitude     1914 non-null   float64
+ 6   bigCityFlag   1914 non-null   int8
+dtypes: float64(2), int32(1), int8(2), object(2)
+memory usage: 86.0+ KB
 
 In [4]:
 
@@ -326,13 +327,24 @@ JpCity class is subclass of JpPrefecture.
 - `citycode2name()`
 - `cityname2code()`
 - `cityname2normalize()`
+- `citycode2normalize()`
 - `cityname2prefcode()`
 - `cityname2preffecture()`
+- `cityname2geodetic()`
+- `citycode2geodetic()`
 - `validate_city()`
 
 ```python
 from jp_prefecture.jp_cities import jp_cities as jp
 import pandas as pd
+
+assert ( jp.cityname2code('札幌市')
+         == jp.cityname2code('Sapporo-shi')
+         == 1100 )
+
+assert ( jp.cityname2code('札幌市', as_str=True)
+         == jp.cityname2code('Sapporo-shi', as_str=True)
+         == "01100" )
 
 assert ( jp.cityname2code('京都市')
          == jp.cityname2code('Kyoto-shi')
@@ -598,26 +610,27 @@ assert ( s1.equals(s2)
          == s2.equals(s3)
          == True )
 
+assert jp.citycode2normalize(26100) == 26100
+assert jp.citycode2normalize(261009) == 26100
+assert jp.citycode2normalize(26100, as_str=True) == '26100'
+assert jp.citycode2normalize(261009, as_str=True) == '26100'
+assert jp.citycode2normalize("26100") == 26100
+assert jp.citycode2normalize("261009") == 26100
+assert jp.citycode2normalize("26100", as_str=True) == '26100'
+assert jp.citycode2normalize("261009", as_str=True) == '26100'
+
 assert jp.citycode2name(26100) == '京都市'
-
 assert jp.citycode2name("26100") == '京都市'
-
 assert jp.citycode2name(261009) == '京都市'
-
 assert jp.citycode2name("261009") == '京都市'
 
 assert ( jp.citycode2name([26101, 26103, 26108])
          ==  ['京都市北区', '京都市左京区', '京都市右京区'] )
 
-
 assert jp.citycode2name(26100, ascii=True) == 'Kyoto-shi'
-
 assert jp.citycode2name("26100", ascii=True) == 'Kyoto-shi'
-
 assert jp.citycode2name(261009, ascii=True) == 'Kyoto-shi'
-
 assert jp.citycode2name("261009", ascii=True) == 'Kyoto-shi'
-
 assert ( jp.citycode2name([26101, 26103, 26108], ascii=True)
         == ['Kyoto-shi Kita-ku',
             'Kyoto-shi Sakyo-ku',
@@ -969,6 +982,74 @@ assert ( s1.equals(s2)
          == s4.equals(s5)
          == True )
 
+assert ( jp.cityname2geodetic('京都市')
+         == jp.cityname2geodetic('Kyoto-shi')
+         == (35.0117,135.452 ) )
+
+assert ( jp.cityname2geodetic(['京都市', '大阪市'])
+         == jp.cityname2geodetic(['Kyoto-shi','Osaka-shi'])
+         == [(35.0117,135.452),(34.4138,135.3808)] )
+
+d1 = jp.cityname2geodetic(pd.Series(['京都市', '大阪市']))
+d2 = pd.DataFrame([ ['京都市', 35.0117,135.452],
+                    ['大阪市', 34.4138,135.3808]],
+                  columns=['cityName', 'latitude', 'longitude'])
+check = pd.concat([d1,d2]).drop_duplicates(keep=False)
+assert ( len(check) == 0 )
+
+d3 = jp.cityname2geodetic(pd.Series(['Kyoto-shi', 'Osaka-shi']))
+d4 = pd.DataFrame([['Kyoto-shi', 35.0117,135.452],
+                   ['Osaka-shi', 34.4138,135.3808]],
+                  columns=['cityName', 'latitude', 'longitude'])
+check = pd.concat([d3,d4]).drop_duplicates(keep=False)
+assert ( len(check) == 0 )
+
+assert ( jp.citycode2geodetic(26100) == (35.0117,135.452) )
+assert ( jp.citycode2geodetic("26100") == (35.0117,135.452) )
+assert ( jp.citycode2geodetic(261009) == (35.0117,135.452) )
+assert ( jp.citycode2geodetic("261009") == (35.0117,135.452) )
+
+assert ( jp.citycode2geodetic([26100, 27100])
+         == [(35.0117,135.452), (34.4138,135.3808)] )
+
+assert ( jp.citycode2geodetic(["26100", "27100"])
+         == [(35.0117,135.452), (34.4138,135.3808)] )
+
+assert ( jp.citycode2geodetic([261009, 271004])
+         == [(35.0117,135.452), (34.4138,135.3808)] )
+
+assert ( jp.citycode2geodetic(["26100", "271004"])
+         == [(35.0117,135.452), (34.4138,135.3808)] )
+
+d1 = jp.citycode2geodetic(pd.Series([26100,27100]))
+d2 = pd.DataFrame([ [26100, 35.0117,135.452],
+                    [27100, 34.4138,135.3808] ],
+                  columns=['cityCode', 'latitude', 'longitude'])
+check = pd.concat([d1,d2]).drop_duplicates(keep=False)
+assert ( len(check) == 0 )
+
+d1 = jp.citycode2geodetic(pd.Series([261009,271004]))
+d2 = pd.DataFrame([ [26100, 35.0117,135.452],
+                    [27100, 34.4138,135.3808] ],
+                  columns=['cityCode', 'latitude', 'longitude'])
+check = pd.concat([d1,d2]).drop_duplicates(keep=False)
+assert ( len(check) == 0 )
+
+d1 = jp.citycode2geodetic(pd.Series(["26100","27100"]))
+d2 = pd.DataFrame([ [26100, 35.0117,135.452],
+                    [27100, 34.4138,135.3808] ],
+                  columns=['cityCode', 'latitude', 'longitude'])
+check = pd.concat([d1,d2]).drop_duplicates(keep=False)
+assert ( len(check) == 0 )
+
+d1 = jp.citycode2geodetic(pd.Series(["261009","271004"]))
+d2 = pd.DataFrame([ [26100, 35.0117,135.452],
+                    [27100, 34.4138,135.3808] ],
+                  columns=['cityCode', 'latitude', 'longitude'])
+check = pd.concat([d1,d2]).drop_duplicates(keep=False)
+assert ( len(check) == 0 )
+
+
 ```
 
 >Trivia
@@ -976,8 +1057,9 @@ Kyoto, Osaka and Nara are the place where the emperor established their capitals
 
 ## Memory Usage
 
-jp_prefecture: 60.0546875 KB.
-    jp_cities: 2736.5234375 KB.
+jp_prefecture: 60.05 KB.
+    jp_cities: 2919.66 KB.
+
 
 ## BONUS: simpledispatchmethod
 As of python 3.8 [funtools.singledispatchmethod](https://docs.python.org/3/library/functools.html#functools.singledispatchmethod) allows singledispatch on methods, class methods, and staticmethods.
