@@ -101,20 +101,22 @@ In [4]:
 ## Dataframe of Cities
 
 ```python
+In [1]: from jp_prefecture.jp_cities import jp_cities as jp
+
 In [2]: jp.cities
 Out[2]:
       prefCode  cityCode  cityName              cityAlphabet  latitude  longitude  bigCityFlag
 0            1      1100       札幌市               Sapporo-shi   43.0351   141.2049            2
-1            1      1101    札幌市中央区       Sapporo-shi Chuo-ku   43.0422    43.0422            1
-2            1      1102     札幌市北区       Sapporo-shi Kita-ku   43.1571    43.1571            1
-3            1      1103     札幌市東区    Sapporo-shi Higashi-ku   43.1208    43.1208            1
-4            1      1104    札幌市白石区  Sapporo-shi Shiroishi-ku   43.0716    43.0716            1
+1            1      1101    札幌市中央区       Sapporo-shi Chuo-ku   43.0422   141.3197            1
+2            1      1102     札幌市北区       Sapporo-shi Kita-ku   43.1571   141.3902            1
+3            1      1103     札幌市東区    Sapporo-shi Higashi-ku   43.1208   141.3944            1
+4            1      1104    札幌市白石区  Sapporo-shi Shiroishi-ku   43.0716   141.4370            1
 ...        ...       ...       ...                       ...       ...        ...          ...
-1909        47     47361   島尻郡久米島町  Shimajiri-gun Kumejim...   26.3474    26.3474            0
-1910        47     47362   島尻郡八重瀬町   Shimajiri-gun Yaese-cho   26.1260    26.1260            0
-1911        47     47375   宮古郡多良間村     Miyako-gun Tarama-son   24.6578    24.6578            0
-1912        47     47381   八重山郡竹富町  Yaeyama-gun Taketomi-cho   24.2371    24.2371            0
-1913        47     47382  八重山郡与那国町  Yaeyama-gun Yonaguni-cho   24.4559    24.4559            0
+1909        47     47361   島尻郡久米島町  Shimajiri-gun Kumejim...   26.3474   126.7697            0
+1910        47     47362   島尻郡八重瀬町   Shimajiri-gun Yaese-cho   26.1260   127.7472            0
+1911        47     47375   宮古郡多良間村     Miyako-gun Tarama-son   24.6578   124.6854            0
+1912        47     47381   八重山郡竹富町  Yaeyama-gun Taketomi-cho   24.2371   124.0119            0
+1913        47     47382  八重山郡与那国町  Yaeyama-gun Yonaguni-cho   24.4559   122.9877            0
 
 In [3]: jp.cities.info()
 <class 'pandas.core.frame.DataFrame'>

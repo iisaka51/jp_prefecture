@@ -1,3 +1,3 @@
 __AUTHOR__="Goichi (Iisaka) Yukawa"
-__VERSION__="0.5.7"
+__VERSION__="0.5.8"
 __LICENSE__="MIT"
