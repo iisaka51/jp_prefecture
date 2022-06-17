@@ -96,7 +96,7 @@ data['prefCode'] = pd.to_numeric(data['prefCode'], downcast='integer')
 # data['latitude'] = pd.to_numeric(data['latitude'], downcast='float')
 # data['longitude'] = pd.to_numeric(data['longitude'], downcast='float')
 data['latitude'] = data['latitude'].astype(float)
-data['longitude'] = data['latitude'].astype(float)
+data['longitude'] = data['longitude'].astype(float)
 
 data['bigCityFlag']=0
 

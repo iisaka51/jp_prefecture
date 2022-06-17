@@ -85,10 +85,9 @@ class TestClass:
 
     def test_citycode2geodetic_str_with_checkdigit_series(self):
         d1 = jp.citycode2geodetic(pd.Series(["261009","271004"]))
-        d2 = pd.DataFrame([ [26100, 35.0117,135.452],
+        d2 = pd.DataFrame([ [26100, 35.0117,135.4520],
                             [27100, 34.4138,135.3808] ],
                           columns=['cityCode', 'latitude', 'longitude'])
         check = pd.concat([d1,d2]).drop_duplicates(keep=False)
         assert ( len(check) == 0 )
-
 

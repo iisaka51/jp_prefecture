@@ -31,7 +31,8 @@ def validate_checkdigit(
     for r in ((".", ""),("-","")):
         number = number.replace(*r)
 
-    number=number.zfill(num_digits)
+    if num_digits:
+        number=number.zfill(num_digits)
     if len(number) != num_digits:
         check_digit = int(number[-1])
         number = number[:-1]

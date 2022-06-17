@@ -1090,27 +1090,25 @@ expect = ['Kyoto-Shi',
 result = jp.findcity(name)
 assert ( result == expect )
 
-name=re.compile('.*長岡.*')
-expect = [15202, 26209, 39341, 39344]
-
-name = re.compile('.*町町')
+pattern = re.compile('.*町町')
 expect = ['杵島郡大町町']
-result = jp.findcity(name)
+result = jp.findcity(pattern)
 assert ( result == expect )
 
-name = re.compile('.*町町')
+pattern = re.compile('.*町町')
 expect = ['Kishima-gun Omachi-cho']
-result = jp.findcity(name, ascii=True)
+result = jp.findcity(pattern, ascii=True)
 assert ( result == expect )
 
-result = jp.cityname2code(name)
+pattern=re.compile('.*長岡.*')
+expect = [15202, 26209, 39341, 39344]
+result = jp.cityname2code(pattern)
 assert ( result == expect )
 
-name=re.compile('Kyoto.*')
+pattern=re.compile('Kyoto.*')
 expect = [26100, 26101, 26102, 26103, 26104, 26105,
          26106, 26107, 26108, 26109, 26110, 26111]
-
-result = jp.cityname2code(name)
+result = jp.cityname2code(pattern)
 assert ( result == expect )
 ```
 
@@ -1205,6 +1203,12 @@ assert validate_checkdigit("2610", 5) == None
 assert validate_checkdigit(261009, 5) == 26100
 
 assert validate_checkdigit("261009", 5) == "26100"
+
+assert ( validate_checkdigit(26100, 5) == 26100 )
+
+assert ( validate_checkdigit(1100, 5) == 1100 )
+
+assert ( validate_checkdigit("1100", 5) == "01100" )
 
 assert calc_checkdigit(26100) == 261009
 
