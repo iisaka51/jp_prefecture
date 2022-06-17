@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import re
 from typing import Optional, Union, Any
 from pathlib import Path
 from .singledispatchmethod import singledispatchmethod
@@ -106,6 +107,23 @@ class JpCity(JpPrefecture):
         except KeyError:
             code = None
         return code
+
+    @cityname2code.register(re.Pattern)
+    def _cityname2code_str(self,
+            name: re.Pattern,
+            ignore_case: bool=False,
+            checkdigit: bool=False,
+            as_str: bool=False,
+        ) -> list:
+        """ Convert cityName to cityCode """
+        cities = [ re.search(name, x) for x in self.__cityname2code.keys() ]
+        codes = list()
+        for x in cities:
+            if x:
+                code = self.__cityname2code[x.group(0)]
+                if code not in codes:
+                    codes.append(code)
+        return codes
 
     @cityname2code.register(list)
     def _cityname2code_list(self,
@@ -301,6 +319,23 @@ class JpCity(JpPrefecture):
             citycode = None
 
         return citycode
+
+    def findcity(self,
+            name: re.Pattern,
+            ignore_case: bool=False
+        ) -> list:
+        flag = [0, re.IGNORECASE][ignore_case]
+        result = [ re.search(name, x, flag)
+                   for x in self.__cityname2code.keys() ]
+        cities = list()
+        for x in result:
+            if x:
+                city = x.group(0).title()
+                if city not in cities:
+                    cities.append(city)
+
+        return cities
+
 
     @singledispatchmethod
     def cityname2prefcode(self, arg: Any,

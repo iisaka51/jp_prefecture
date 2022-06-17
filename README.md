@@ -332,6 +332,7 @@ JpCity class is subclass of JpPrefecture.
 - `cityname2preffecture()`
 - `cityname2geodetic()`
 - `citycode2geodetic()`
+- `findcity()`
 - `validate_city()`
 
 ```python
@@ -1055,10 +1056,59 @@ assert ( len(check) == 0 )
 >Trivia
 Kyoto, Osaka and Nara are the place where the emperor established their capitals.
 
+
+## Regular Expression
+
+`findcity()` and  `cityname2code()` allow to regexpression.
+
+```python
+
+from jp_prefecture.jp_cities import jp_cities as jp
+import re
+
+name=re.compile('.*長岡.*')
+expect = ['長岡市', '長岡京市', '長岡郡本山町', '長岡郡大豊町']
+
+result = jp.findcity(name)
+assert ( result == expect )
+
+name=re.compile('Kyoto.*')
+expect = ['Kyoto-Shi',
+          'Kyoto-Shi Kita-Ku',
+          'Kyoto-Shi Kamigyo-Ku',
+          'Kyoto-Shi Sakyo-Ku',
+          'Kyoto-Shi Nakagyo-Ku',
+          'Kyoto-Shi Higashiyama-Ku',
+          'Kyoto-Shi Shimogyo-Ku',
+          'Kyoto-Shi Minami-Ku',
+          'Kyoto-Shi Ukyo-Ku',
+          'Kyoto-Shi Fushimi-Ku',
+          'Kyoto-Shi Yamashina-Ku',
+          'Kyoto-Shi Nishikyo-Ku']
+
+result = jp.findcity(name)
+assert ( result == expect )
+
+name=re.compile('.*長岡.*')
+expect = [15202, 26209, 39341, 39344]
+
+result = jp.cityname2code(name)
+assert ( result == expect )
+
+name=re.compile('Kyoto.*')
+expect = [26100, 26101, 26102, 26103, 26104, 26105,
+         26106, 26107, 26108, 26109, 26110, 26111]
+
+result = jp.cityname2code(name)
+assert ( result == expect )
+```
+
 ## Memory Usage
 
+```
 jp_prefecture: 60.05 KB.
     jp_cities: 2919.66 KB.
+```
 
 
 ## BONUS: simpledispatchmethod
@@ -1163,6 +1213,19 @@ assert( validate_checkdigit("4-900900672") == "490090067")
 
 # for ISDB13
 assert( validate_checkdigit("978-4-906649-006") == "978490664900")
+```
+
+# Japanese address
+
+```
+Prefecture : ( '都', '道', '府',  '県' )
+City: { '-shi': '市' }
+District: { '-ku': '区' }
+County: {'-gun': '郡' }
+Town: { '-machi': '町',
+        '-cho': '町' }
+Village: { '-son': '村',
+           '-mura': '村' }
 ```
 
 
