@@ -38,11 +38,11 @@ class TestClass:
 
     def test_validate_checkdigit_as_str_short(self):
         assert ( validate_checkdigit("2610", 5)
-                 == None )
+                 == "02610" )
 
     def test_validate_checkdigit_short(self):
         assert ( validate_checkdigit("2610", 5)
-                 == None )
+                 == "02610" )
 
     def test_validate_checkdigith_num_digits(self):
         assert ( validate_checkdigit(261009, 5)
