@@ -1093,6 +1093,16 @@ assert ( result == expect )
 name=re.compile('.*長岡.*')
 expect = [15202, 26209, 39341, 39344]
 
+name = re.compile('.*町町')
+expect = ['杵島郡大町町']
+result = jp.findcity(name)
+assert ( result == expect )
+
+name = re.compile('.*町町')
+expect = ['Kishima-gun Omachi-cho']
+result = jp.findcity(name, ascii=True)
+assert ( result == expect )
+
 result = jp.cityname2code(name)
 assert ( result == expect )
 

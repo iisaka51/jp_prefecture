@@ -31,6 +31,27 @@ class TestClass:
         result = jp.findcity(name)
         assert ( result == expect )
 
+    def test_find_city_alhabet_not_match(self):
+        name=re.compile('Kyoto-')
+        result = jp.findcity(name)
+        assert ( result == [] )
+
+    def test_find_city_alhabet_not_re(self):
+        result = jp.findcity('Kyoto-')
+        assert ( result == [] )
+
+    def test_findcity_kanji_output_kanji(self):
+        name = re.compile('.*町町')
+        expect = ['杵島郡大町町']
+        result = jp.findcity(name)
+        assert ( result == expect )
+
+    def test_findcity_kanji_output_alphbet(self):
+        name = re.compile('.*町町')
+        expect = ['Kishima-gun Omachi-cho']
+        result = jp.findcity(name, ascii=True)
+        assert ( result == expect )
+
     def test_cityname2code_kanji(self):
         name=re.compile('.*長岡.*')
         expect = [15202, 26209, 39341, 39344]

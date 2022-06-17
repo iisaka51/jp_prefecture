@@ -322,7 +322,8 @@ class JpCity(JpPrefecture):
 
     def findcity(self,
             name: re.Pattern,
-            ignore_case: bool=False
+            ignore_case: bool=False,
+            ascii: bool=False,
         ) -> list:
         flag = [0, re.IGNORECASE][ignore_case]
         result = [ re.search(name, x, flag)
@@ -331,8 +332,10 @@ class JpCity(JpPrefecture):
         for x in result:
             if x:
                 city = x.group(0).title()
-                if city not in cities and city in self.__cityname2code.keys():
-                    cities.append(city)
+                if city in self.__cityname2code.keys():
+                    name = [ city, self.__cityname2alphabet[city] ][ascii]
+                    if name not in cities:
+                        cities.append(name)
 
         return cities
 
