@@ -10,6 +10,7 @@ Simple utility to convert the name of japanese prefectures and cities.
 - allow code as str or int.
 - support lists and pandas serires as input.
 - support checkdigits for citycode.
+- support regular expression for cityName.
 - get geodetic(latitude, longitude) from cityCode or cityName
 
 Reference

@@ -331,7 +331,7 @@ class JpCity(JpPrefecture):
         for x in result:
             if x:
                 city = x.group(0).title()
-                if city not in cities:
+                if city not in cities and city in self.__cityname2code.keys():
                     cities.append(city)
 
         return cities
