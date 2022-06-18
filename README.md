@@ -1122,54 +1122,86 @@ assert ( result == expect )
 ```python
 from jp_prefecture.address import JpAddress, JpAddressParser
 
-import sys
-sys.path.insert(0,"../jp_prefecture")
+parser = JpAddressParser()
 
 data = '北海道札幌市西区二十四軒１条７丁目'
-expect = JpAddress(None, '北海道', '札幌市西区', '二十四軒１条７丁目')
 
-result = self.addr.parse_address(data)
-assert (result == expect)
+addr = self.parser.parse_address(data)
+assert ( addr.zipCode == None )
+assert ( addr.prefecture == '北海道' )
+assert ( addr.city == '札幌市西区' )
+assert ( addr.street == '二十四軒１条７丁目' )
+assert ( addr.prefCode == 1)
+assert ( addr.cityCode == 1107)
+assert ( addr.geodetic == (43.079715, 141.308758))
+
 
 data = '617-0826 京都府長岡京市開田1丁目-2-3 アパート123号室'
-expect = JpAddress('617-0826', '京都府', '長岡京市',
-                   '開田1丁目-2-3 アパート123号室')
 
-result = self.addr.parse_address(data)
-assert (result == expect)
+addr = self.parser.parse_address(data)
+assert ( addr.zipCode == '6170826' )
+assert ( addr.prefecture == '京都府' )
+assert ( addr.city == '長岡京市' )
+assert ( addr.street == '開田1丁目-2-3 アパート123号室')
+assert ( addr.prefCode == 26)
+assert ( addr.cityCode == 26209)
+assert ( addr.geodetic == (34.937151, 135.676083))
 
-data = '京都府長岡京市開田1丁目-2-3 アパート123号室'
-expect = JpAddress(None, '京都府', '長岡京市',
-                        '開田1丁目-2-3 アパート123号室')
 
-result = self.addr.parse_address(data)
-assert (result == expect)
+data =  '〒617-0826 長岡京市開田1丁目-2-3 アパート123号室'
 
-data =  '〒617-0826 京都府長岡京市開田1丁目-2-3 アパート123号室'
-expect =  JpAddress('〒617-0826', '京都府', '長岡京市',
-                                  '開田1丁目-2-3 アパート123号室')
+addr = self.parser.parse_address(data)
+assert ( addr.zipCode == '6170826' )
+assert ( addr.prefecture == '京都府' )
+assert ( addr.city == '長岡京市' )
+assert ( addr.street == '開田1丁目-2-3 アパート123号室')
+assert ( addr.geodetic == (34.937151, 135.676083))
 
-result = self.addr.parse_address(data)
-assert (result == expect)
 
 data = '〒6170826 京都府長岡京市開田1丁目-2-3 アパート123号室'
-expect = JpAddress('〒617-0826', '京都府', '長岡京市',
-                                '開田1丁目-2-3 アパート123号室')
-result = self.addr.parse_address(data)
-assert (result == expect)
+
+addr = self.parser.parse_address(data)
+assert ( addr.zipCode == '6170826' )
+assert ( addr.prefecture == '京都府' )
+assert ( addr.city == '長岡京市' )
+assert ( addr.street == '開田1丁目-2-3 アパート123号室')
+assert ( addr.prefCode == 26)
+assert ( addr.cityCode == 26209)
+assert ( addr.geodetic == (34.937151, 135.676083))
 
 data = '6170826 京都府長岡京市開田1丁目-2-3 アパート123号室'
-expect = JpAddress('〒617-0826', '京都府', '長岡京市',
-                              '開田1丁目-2-3 アパート123号室')
-result = self.addr.parse_address(data)
-assert (result == expect)
+
+addr = self.parser.parse_address(data)
+assert ( addr.zipCode == '6170826' )
+assert ( addr.prefecture == '京都府' )
+assert ( addr.city == '長岡京市' )
+assert ( addr.street == '開田1丁目-2-3 アパート123号室')
+assert ( addr.prefCode == 26)
+assert ( addr.cityCode == 26209)
+assert ( addr.geodetic == (34.937151, 135.676083))
+
 
 data = '京都市下京区烏丸通七条下ル 東塩小路町 721-1'
-expect = JpAddress(None, '京都府', '京都市下京区',
-                         '烏丸通七条下ル 東塩小路町 721-1')
-result = self.addr.parse_address(data)
-assert (result == expect)
 
+addr = self.parser.parse_address(data)
+assert ( addr.zipCode == None )
+assert ( addr.prefecture == '京都府' )
+assert ( addr.city == '京都市下京区' )
+assert ( addr.street == '烏丸通七条下ル 東塩小路町 721-1')
+assert ( addr.prefCode == 26)
+assert ( addr.cityCode == 26106)
+assert ( addr.geodetic == (35.002973, 135.764009))
+
+data = '千代田区丸の内1-9-2グラントウキョウサウスタワー23階'
+
+addr = self.parser.parse_address(data)
+assert ( addr.zipCode == None )
+assert ( addr.prefecture == '東京都')
+assert ( addr.city == '千代田区' )
+assert ( addr.street == '丸の内1-9-2グラントウキョウサウスタワー23階')
+assert ( addr.prefCode == 13)
+assert ( addr.cityCode == 13101)
+assert ( addr.geodetic == (35.670812, 139.754182))
 ```
 
 ## Memory Usage
