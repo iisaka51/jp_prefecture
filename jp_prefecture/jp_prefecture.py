@@ -283,7 +283,6 @@ class JpPrefecture(object):
             code = pd.Series([])
         return code
 
-
     @singledispatchmethod
     def validate(self, arg: Any) -> Optional[Union[bool,List[bool],pd.Series]]:
         """ dispatch function """

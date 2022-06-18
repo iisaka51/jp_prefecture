@@ -1,13 +1,17 @@
 import numpy as np
 import pandas as pd
 import re
-from typing import Optional, Union, Any
+from typing import Optional, Union, Any, NamedTuple
 from pathlib import Path
 from .singledispatchmethod import singledispatchmethod
 from .immutable_dict import ImmutableDict
 from .checkdigit import calc_checkdigit, validate_checkdigit
 from .jp_prefecture import JpPrefecture
 from .utils import is_alpha
+
+class Geodetic(NamedTuple):
+    latitude: float
+    longitude: float
 
 class JpCity(JpPrefecture):
     def __init__(self):
@@ -461,7 +465,7 @@ class JpCity(JpPrefecture):
         code = self.cityname2code(name, ignore_case)
         if code:
             city = self.cities.loc[self.cities['cityCode'] == code]
-            geodetic = ( city['latitude'].values[0],
+            geodetic = Geodetic( city['latitude'].values[0],
                          city['longitude'].values[0] )
         else:
             geodetic = None    # type: ignore
@@ -477,7 +481,7 @@ class JpCity(JpPrefecture):
         geodetic = list()
         for c in code:
             city = self.cities.loc[self.cities['cityCode'] == c]
-            pos = ( city['latitude'].values[0],
+            pos = Geodetic( city['latitude'].values[0],
                     city['longitude'].values[0] )
             geodetic.append(pos)
         if len(geodetic) == 0:
@@ -514,7 +518,7 @@ class JpCity(JpPrefecture):
         citycode = self.citycode2normalize(code)
         if citycode:
             city = self.cities.loc[self.cities['cityCode'] == citycode]
-            geodetic = ( city['latitude'].values[0],
+            geodetic = Geodetic( city['latitude'].values[0],
                          city['longitude'].values[0] )
         else:
             geodetic = None    # type: ignore
@@ -531,7 +535,7 @@ class JpCity(JpPrefecture):
         try:
             for c in city_codes:
                 city = self.cities.loc[self.cities['cityCode'] == c]
-                pos = ( city['latitude'].values[0],
+                pos = Geodetic( city['latitude'].values[0],
                         city['longitude'].values[0] )
                 geodetic.append(pos)
         except:

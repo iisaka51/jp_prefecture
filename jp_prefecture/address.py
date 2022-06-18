@@ -32,6 +32,19 @@ class JpAddress(object):
         self.prefCode = jp.name2code(self.prefecture)
         self.geodetic = jp.cityname2geodetic(self.city)
 
+    def __str__(self):
+        if self.zipCode:
+            zip= f'〒{self.zipCode[:3]}-{self.zipCode[3:]} '
+        else:
+            zip = ''
+        address = (
+            f'{zip}'
+            f'{self.prefecture}'
+            f'{self.city}'
+            f'{self.street}'
+        )
+        return address
+
 class JpZipCode(object):
     __zip_pattern = (
        r'(〒)? *(\d{3}-\d{4}|\d{7})? *'
@@ -58,14 +71,14 @@ class JpZipCode(object):
 class JpAddressParser(JpZipCode):
     __address_pattern = (
         r'(〒? *\d{3}-\d{4}|〒? *\d{7})? *'
-        r'(...?[都道府県])?'
+        r'(?P<Prefecture>...?[都道府県]|..?)? *'
         r'('
           r'(?:'
           r'旭川|伊達|石狩|盛岡|奥州|田村|南相馬|那須塩原|'
           r'東村山|武蔵村山|羽村|十日町|上越|富山|野々市|大町|'
           r'蒲郡|四日市|姫路|大和郡山|廿日市|下松|岩国|田川|'
           r'大村|宮古|富良野|別府|佐伯|黒部|小諸|塩尻|玉野|周南'
-          r')市|'
+          r')市 *|'
         r'(?:余市|高市|[^市]{2,3}?)'
         r'郡(?:玉村|大町|.{1,5}?)[町村]|'
         r'(?:.{1,4}市)?[^町]{1,4}?区|'
@@ -80,6 +93,20 @@ class JpAddressParser(JpZipCode):
         r = self.address_re.search(address)
         result = None
         if r:
-            result = JpAddress(*r.groups())
+            prefecture = jp.name2normalize(r.group('Prefecture'))
+            if not prefecture:
+                city = r.group('Prefecture') + r.group(3)
+            else:
+                city = r.group(3).replace(' ', '')
+                city = city.replace('　', '') # Kanji Space
+                city_normal = jp.cityname2normalize(city)
+                if not city_normal:
+                    city = jp.findcity(r.group(2) + '.*' + city)[0]
+                else:
+                    city = city_normal
+            street = re.sub('^[ 　]*', '', r.group(4))
+            result = JpAddress(zipCode=r.group(1),
+                               prefecture=prefecture, city=city,
+                               street=street)
         return result
 
