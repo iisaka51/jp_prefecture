@@ -34,16 +34,16 @@ df = pd.read_csv(url,
             )
 
 replace_vallues = {
-    ' Shi ': '-shi ',
-    ' Shi ': '-shi ',
-    ' Gun ': '-gun ',
-    ' Shi$': '-shi',
-    '-Shi$': '-shi',
-    ' Ku$': '-ku',
-    ' Cho$': '-cho',
-    ' Machi$': '-machi',
-    ' Son$': '-son',
-    ' Mura$': '-mura',
+    ' Shi ': '-Shi ',
+    ' Shi ': '-Shi ',
+    ' Gun ': '-Gun ',
+    ' Shi$': '-Shi',
+    '-Shi$': '-Shi',
+    ' Ku$': '-Ku',
+    ' Cho$': '-Cho',
+    ' Machi$': '-Machi',
+    ' Son$': '-Son',
+    ' Mura$': '-Mura',
 }
 
 # See Also:
@@ -93,8 +93,6 @@ major_city = [
 
 data = df[~df.duplicated(keep='first',subset='cityCode')].copy()
 data['prefCode'] = pd.to_numeric(data['prefCode'], downcast='integer')
-# data['latitude'] = pd.to_numeric(data['latitude'], downcast='float')
-# data['longitude'] = pd.to_numeric(data['longitude'], downcast='float')
 data['latitude'] = data['latitude'].astype(float)
 data['longitude'] = data['longitude'].astype(float)
 
@@ -114,4 +112,4 @@ data.sort_values('cityCode', inplace=True)
 data.reset_index(drop=True,inplace=True)
 
 if __name__ == '__main__':
-    data.to_csv('allcities.csv')
+    data.to_csv('cities.csv')
