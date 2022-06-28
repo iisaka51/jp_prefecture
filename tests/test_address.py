@@ -16,7 +16,7 @@ class TestClass:
         assert ( addr.street == '開田1丁目-2-3 アパート123号室')
         assert ( addr.prefCode == 26)
         assert ( addr.cityCode == 26209)
-        assert ( addr.geodetic == (34.937151, 135.676083))
+        assert ( addr.geodetic == (34.928769, 135.696847))
 
 
     def test_jpaddressparser_with_zip(self):
@@ -27,7 +27,7 @@ class TestClass:
         assert ( addr.prefecture == '京都府' )
         assert ( addr.city == '長岡京市' )
         assert ( addr.street == '天神２丁目１５−１３')
-        assert ( addr.geodetic == (34.937151, 135.676083))
+        assert ( addr.geodetic == (34.923314, 135.685162))
         assert ( addr.__str__()
                  == '〒617-0824 京都府長岡京市天神２丁目１５−１３')
 
@@ -39,7 +39,7 @@ class TestClass:
         assert ( addr.prefecture == '京都府' )
         assert ( addr.city == '長岡京市' )
         assert ( addr.street == '天神２丁目１５−１３')
-        assert ( addr.geodetic == (34.937151, 135.676083))
+        assert ( addr.geodetic == (34.923314, 135.685162))
         assert ( addr.__str__()
                  == '〒617-0824 京都府長岡京市天神２丁目１５−１３')
 
@@ -51,7 +51,7 @@ class TestClass:
         assert ( addr.prefecture == '京都府' )
         assert ( addr.city == '長岡京市' )
         assert ( addr.street == '天神２丁目１５−１３')
-        assert ( addr.geodetic == (34.937151, 135.676083))
+        assert ( addr.geodetic == (34.923314, 135.685162))
         assert ( addr.__str__()
                  == '京都府長岡京市天神２丁目１５−１３')
 
@@ -63,7 +63,7 @@ class TestClass:
         assert ( addr.prefecture == '京都府' )
         assert ( addr.city == '長岡京市' )
         assert ( addr.street == '天神２丁目１５−１３')
-        assert ( addr.geodetic == (34.937151, 135.676083))
+        assert ( addr.geodetic == (34.923314, 135.685162))
         assert ( addr.__str__()
                  == '京都府長岡京市天神２丁目１５−１３')
 
@@ -76,7 +76,7 @@ class TestClass:
         assert ( addr.prefecture == '京都府' )
         assert ( addr.city == '長岡京市' )
         assert ( addr.street == '天神２丁目１５−１３')
-        assert ( addr.geodetic == (34.937151, 135.676083))
+        assert ( addr.geodetic == (34.923314, 135.685162))
         assert ( addr.__str__()
                  == '京都府長岡京市天神２丁目１５−１３')
 
@@ -88,7 +88,7 @@ class TestClass:
         assert ( addr.prefecture == '京都府' )
         assert ( addr.city == '長岡京市' )
         assert ( addr.street == '天神２丁目１５−１３')
-        assert ( addr.geodetic == (34.937151, 135.676083))
+        assert ( addr.geodetic == (34.923314, 135.685162))
         assert ( addr.__str__()
                  == '京都府長岡京市天神２丁目１５−１３')
 
@@ -142,7 +142,7 @@ class TestClass:
         assert ( addr.street == '丸の内1-9-2グラントウキョウサウスタワー23階')
         assert ( addr.prefCode == 13)
         assert ( addr.cityCode == 13101)
-        assert ( addr.geodetic == (35.670812, 139.754182))
+        assert ( addr.geodetic == (35.68156, 139.767201))
         assert ( addr.__str__()
            ==  '東京都千代田区丸の内1-9-2グラントウキョウサウスタワー23階' )
 
@@ -156,6 +156,6 @@ class TestClass:
         assert ( addr.street == '丸の内1-9-2グラントウキョウサウスタワー23階')
         assert ( addr.prefCode == 13)
         assert ( addr.cityCode == 13101)
-        assert ( addr.geodetic == (35.670812, 139.754182))
+        assert ( addr.geodetic == ( 35.68156, 139.767201))
         assert ( addr.__str__()
            ==  '東京都千代田区丸の内1-9-2グラントウキョウサウスタワー23階' )

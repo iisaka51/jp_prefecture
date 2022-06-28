@@ -31,9 +31,18 @@ from jp_prefecture import jp_prefectures as jp
 
 from jp_prefecture.jp_cities import jp.jp_cities as jp
 
-# or
+# If you want to town data.
+del jp
+jp = JpCity(enable_town=True)
+
+# or Set Shell Environment variable
+
+export JP_PREFECTURE_ENABLE_TOWN=1
+
+# and, japanese address parser.
 
 from jp_prefecture.address import JpAddressParser, JpAddress
+parser = JpAddressParser()
 
 ```
 
@@ -45,11 +54,9 @@ from jp_prefecture.address import JpAddressParser, JpAddress
 
 ```python
 from jp_prefecture.address import JpAddressParser, JpAddress
-
 parser = JpAddressParser()
 
 data = '〒617-0826 京都府長岡京市開田1丁目-2-3 アパート123号室'
-
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == '6170826' )
 assert ( addr.prefecture == '京都府' )
@@ -57,77 +64,67 @@ assert ( addr.city == '長岡京市' )
 assert ( addr.street == '開田1丁目-2-3 アパート123号室')
 assert ( addr.prefCode == 26)
 assert ( addr.cityCode == 26209)
-assert ( addr.geodetic == (34.937151, 135.676083))
-assert ( addr.__str__()
-         == '〒617-0826 京都府長岡京市開田1丁目-2-3 アパート123号室'
+assert ( addr.geodetic == (34.928769, 135.696847))
 
 
 data = '〒617-0824 長岡京市天神２丁目１５−１３'
-
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == '6170824' )
 assert ( addr.prefecture == '京都府' )
 assert ( addr.city == '長岡京市' )
 assert ( addr.street == '天神２丁目１５−１３')
-assert ( addr.geodetic == (34.937151, 135.676083))
+assert ( addr.geodetic == (34.923314, 135.685162))
 assert ( addr.__str__()
          == '〒617-0824 京都府長岡京市天神２丁目１５−１３')
 
 data = '6170824 長岡京市天神２丁目１５−１３'
-
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == '6170824' )
 assert ( addr.prefecture == '京都府' )
 assert ( addr.city == '長岡京市' )
 assert ( addr.street == '天神２丁目１５−１３')
-assert ( addr.geodetic == (34.937151, 135.676083))
+assert ( addr.geodetic == (34.923314, 135.685162))
 assert ( addr.__str__()
          == '〒617-0824 京都府長岡京市天神２丁目１５−１３')
 
 data = '長岡京市天神２丁目１５−１３'
-
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == None )
 assert ( addr.prefecture == '京都府' )
 assert ( addr.city == '長岡京市' )
 assert ( addr.street == '天神２丁目１５−１３')
-assert ( addr.geodetic == (34.937151, 135.676083))
+assert ( addr.geodetic == (34.923314, 135.685162))
 assert ( addr.__str__()
          == '京都府長岡京市天神２丁目１５−１３')
 
-
 data = '京都長岡京市天神２丁目１５−１３'
-
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == None )
 assert ( addr.prefecture == '京都府' )
 assert ( addr.city == '長岡京市' )
 assert ( addr.street == '天神２丁目１５−１３')
-assert ( addr.geodetic == (34.937151, 135.676083))
+assert ( addr.geodetic == (34.923314, 135.685162))
 assert ( addr.__str__()
          == '京都府長岡京市天神２丁目１５−１３')
 
 
 data = '京都 長岡京市天神２丁目１５−１３'
-
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == None )
 assert ( addr.prefecture == '京都府' )
 assert ( addr.city == '長岡京市' )
 assert ( addr.street == '天神２丁目１５−１３')
-assert ( addr.geodetic == (34.937151, 135.676083))
+assert ( addr.geodetic == (34.923314, 135.685162))
 assert ( addr.__str__()
          == '京都府長岡京市天神２丁目１５−１３')
 
-
 data = '京都府 長岡京市天神２丁目１５−１３'
-
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == None )
 assert ( addr.prefecture == '京都府' )
 assert ( addr.city == '長岡京市' )
 assert ( addr.street == '天神２丁目１５−１３')
-assert ( addr.geodetic == (34.937151, 135.676083))
+assert ( addr.geodetic == (34.923314, 135.685162))
 assert ( addr.__str__()
          == '京都府長岡京市天神２丁目１５−１３')
 
@@ -143,7 +140,6 @@ assert ( addr.cityCode == 26106)
 assert ( addr.geodetic == (35.002973, 135.764009))
 
 data = '京都市 下京区烏丸通七条下ル 東塩小路町 721-1'
-
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == None )
 assert ( addr.prefecture == '京都府' )
@@ -156,7 +152,6 @@ assert ( addr.__str__()
          == '京都府京都市下京区烏丸通七条下ル 東塩小路町 721-1' )
 
 data = '京都 下京区 烏丸通七条下ル 東塩小路町 721-1'
-
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == None )
 assert ( addr.prefecture == '京都府' )
@@ -177,12 +172,11 @@ assert ( addr.city == '千代田区' )
 assert ( addr.street == '丸の内1-9-2グラントウキョウサウスタワー23階')
 assert ( addr.prefCode == 13)
 assert ( addr.cityCode == 13101)
-assert ( addr.geodetic == (35.670812, 139.754182))
+assert ( addr.geodetic == (35.68156, 139.767201))
 assert ( addr.__str__()
-         == '東京都千代田区丸の内1-9-2グラントウキョウサウスタワー23階'
+   ==  '東京都千代田区丸の内1-9-2グラントウキョウサウスタワー23階' )
 
 data = '千代田区 丸の内1-9-2グラントウキョウサウスタワー23階'
-
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == None )
 assert ( addr.prefecture == '東京都')
@@ -190,10 +184,9 @@ assert ( addr.city == '千代田区' )
 assert ( addr.street == '丸の内1-9-2グラントウキョウサウスタワー23階')
 assert ( addr.prefCode == 13)
 assert ( addr.cityCode == 13101)
-assert ( addr.geodetic == (35.670812, 139.754182))
+assert ( addr.geodetic == ( 35.68156, 139.767201))
 assert ( addr.__str__()
-   ==  '東京都千代田区丸の内1-9-2グラントウキョウサウスタワー23階'
-
+   ==  '東京都千代田区丸の内1-9-2グラントウキョウサウスタワー23階' )
 ```
 
 ### Dataframe of jp.prefectures
@@ -1282,11 +1275,58 @@ expect = [26100, 26101, 26102, 26103, 26104, 26105,
 result = jp.cityname2code(pattern)
 assert ( result == expect )
 ```
+
+## class JpNumberParser
+
+- `kanji2number(val)`
+- `number2kanji(val, style)`
+- `parser_jpnumber(val)``
+
+n [1]: from jp_prefecture.jp_numbers import JpNumberParser
+
+In [2]: jn = JpNumberParser()
+
+In [3]: jn.number2kanji(87654)
+Out[3]: JpNumber(number=87654, as_str='87654', as_kanji='八万七千六百五十四')
+
+In [4]: jn.number2kanji(87654, style='arabic')
+Out[4]: JpNumber(number=87654, as_str='87654', as_kanji='８７６５４')
+
+In [5]: jn.number2kanji(87654, style='mix')
+09:44:27.69 LOG:
+09:44:27.78 .... count = 0
+Out[5]: JpNumber(number=87654, as_str='87654', as_kanji='８万６５４')
+
+In [6]: jn.number2kanji(87654, style='finance')
+Out[6]: JpNumber(number=87654, as_str='87654', as_kanji='８７，６５４')
+
+In [7]: jn.number2kanji(87654, style='daiji')
+Out[7]: JpNumber(number=87654, as_str='87654', as_kanji='捌萬漆仟陸佰伍拾肆')
+
+In [8]: jn.kanji2number('八万七千六百五十四')
+Out[8]: JpNumber(number=87654, as_str='87654', as_kanji='八万七千六百五十四')
+
+In [9]: jn.kanji2number('８７６５４')
+Out[9]: JpNumber(number=87654, as_str='87654', as_kanji='８７６５４')
+
+In [10]: jn.kanji2number('８７，６５４')
+Out[10]: JpNumber(number=87654, as_str='87654', as_kanji='８７，６５４')
+
+In [11]: jn.kanji2number('捌萬漆仟陸佰伍拾肆')
+Out[11]: JpNumber(number=87654, as_str='87654', as_kanji='捌萬漆仟陸佰伍拾肆')
+
+In [12]: jn.normalize_kanjinumber('京都府長岡京市天神２丁目１５-１３')
+Out[12]: '京都府長岡京市天神二丁目十五-十三'
+
+
+
 ## Memory Usage
 
 ```
-jp_prefecture: 60.05 KB.
-    jp_cities: 2919.66 KB.
+      jp_prefecture: 60.05 KB.
+          jp_cities: 2919.74 KB.
+jp_cities_with_town: 130071.29 KB.
+     address parser: 15.07 KB.
 ```
 
 
@@ -1403,21 +1443,21 @@ assert( validate_checkdigit("978-4-906649-006") == "978490664900")
 # Japanese address
 
 ```
-Prefecture : ( '都', '道', '府',  '県' )
-City: { '-shi': '市' }
-District: { '-ku': '区' }
-County: {'-gun': '郡' }
-Town: { '-machi': '町',
-        '-cho': '町' }
-Village: { '-son': '村',
-           '-mura': '村' }
+Prefecture : ( '-To':'都', '-Dou': '道', '-Fu': '府',  '-Ken': '県' )
+City: { '-Shi': '市' }
+District: { '-Ku': '区' }
+County: {'-Gun': '郡' }
+Town: { '-Machi': '町',
+        '-Cho': '町' }
+Village: { '-Son': '村',
+           '-Mura': '村' }
 ```
 
 
 ## The CityCode (JIS X 0402)
 The CityCode consists of a five-digit number assigned to each local public entity (prefecture, municipality, etc.) in Japan, as well as to counties that are not solely local public entities but are used as statistical divisions, in accordance with certain rules.
 Among the five-digit numbers The first two digits represent prefectures, numbered from north to south, from "01" (Hokkaido) to "47" (Okinawa).
-The third digit indicates whether the area belongs to a city or a county. The third digit indicates whether the area belongs to a city or a county. The last two digits are 3-digit numbers.
+The third digit indicates whether the area belongs to a city or a county. The third digit indicates whether the area belongs to a city or a county.
 The last two digits are the number of the respective group represented by the third digit ("1": special wards, wards of ordinance-designated cities, "2": a group of cities, "3-": a group of counties, "4-": a group of towns and villages belonging to counties, "5-": a group of cities). 3-": counties and towns/villages within each county), and the last two digits are assigned to each city, county, town, or village according to the arrangement of the third digit. The arrangement of cities, counties, towns, and villages is fixed for each prefecture and ordinance-designated city. In most prefectures, cities are arranged in the order in which they were established, but in some cases, such as Wakayama Prefecture, cities are arranged from north to south regardless of the order in which they were established.
 Thus, each city, county, town, village is represented by the third digit and the last two digits combined.
-For example, Nagaokakyo City in Kyoto Prefecture is represented by the citycode number "26209", of which the upper two digits "26" represent Kyoto Prefecture and the lower three digits The last 3-digit "209" represents Nagaokakyo City, which is the 9th city (10th if Kyoto City is included) in Kyoto Prefecture.
+For example, Nagaokakyo City in Kyoto Prefecture is represented by the citycode "26209", of which the upper two digits "26" represent Kyoto Prefecture and the lower three digits The last 3-digit "209" represents Nagaokakyo City, which is the 9th city (10th if Kyoto City is included) in Kyoto Prefecture.

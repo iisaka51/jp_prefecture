@@ -1,7 +1,9 @@
+import os
 import numpy as np
 import pandas as pd
 import re
 from typing import Optional, Union, Any, NamedTuple
+from dataclasses import dataclass, field
 from pathlib import Path
 from .singledispatchmethod import singledispatchmethod
 from .immutable_dict import ImmutableDict
@@ -13,12 +15,26 @@ class Geodetic(NamedTuple):
     latitude: float
     longitude: float
 
+@dataclass
+class JpTown(object):
+    prefecture: str
+    city: str
+    town: str
+    prefCode: int=field(repr=False, default=None)
+    cityCode: int=field(repr=False, default=None)
+    geodetic: Geodetic=field(repr=False, default=None)
+
 class JpCity(JpPrefecture):
-    def __init__(self):
+    def __init__(self, enable_town:bool=False):
         # City Code: JIS X 0402
 
         super().__init__()
         self.cities = pd.read_csv(Path(__file__).parent / 'data/cities.csv',
+                                  index_col = 0)
+        self.enable_town = os.environ.get('JP_PREFECTURE_ENABLE_TOWN',
+                                           default=enable_town)
+        if self.enable_town:
+            self.towns = pd.read_csv(Path(__file__).parent / 'data/towns.csv',
                                   index_col = 0)
 
         self.cities['prefCode'] = pd.to_numeric(self.cities['prefCode'],
@@ -343,6 +359,36 @@ class JpCity(JpPrefecture):
 
         return cities
 
+    def findtown(self,
+            name: re.Pattern,
+            city: Optional[Union[str,int]]=None
+        )->list:
+        if not self.enable_town:
+            raise NotImplementedError('Town data does not enabled.')
+
+        if city:
+            city = self.cityname2code(city)
+            df = self.towns[self.towns['cityCode'] == city]
+        else:
+            df = self.towns.copy()
+        df = df[df['town'].str.match(name)]
+        df['cityName'] = df['cityCode'].map(self.__citycode2name)
+        df['prefecture'] = df['cityName'].map(self.cityname2prefecture)
+        df['prefCode'] = df['cityName'].map(self.cityname2prefcode)
+        df = df.loc[:, [
+                    'prefecture', 'prefCode',
+                    'cityName', 'cityCode',
+                    'town', 'latitude', 'longitude']]
+        towns_list = list()
+        for town in df.values:
+            towns_list.append( JpTown(
+                     prefecture=town[0], prefCode=town[1],
+                     city=town[2], cityCode=town[3],
+                     town=town[4],
+                     geodetic=Geodetic(town[5], town[6])
+                 )
+              )
+        return towns_list
 
     @singledispatchmethod
     def cityname2prefcode(self, arg: Any,

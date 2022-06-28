@@ -46,7 +46,7 @@ replace_vallues = {
     ' Mura$': '-Mura',
 }
 
-data = df.copy()
+data = df[~df.duplicated(keep='first',subset=['cityCode','town'])].copy()
 data['prefCode'] = pd.to_numeric(data['prefCode'], downcast='integer')
 data['latitude'] = data['latitude'].astype(float)
 data['longitude'] = data['longitude'].astype(float)

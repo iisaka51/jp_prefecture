@@ -2,6 +2,8 @@ import re
 from dataclasses import dataclass, InitVar, field
 from typing import Optional
 from .jp_cities import jp_cities as jp
+from .jp_cities import Geodetic
+from .jp_numbers import JpNumberParser
 
 class JpAddressError(BaseException):
     pass
@@ -14,7 +16,7 @@ class JpAddress(object):
     street: str
     prefCode: int=field(init=False, repr=False, default=None)
     cityCode: int=field(init=False, repr=False, default=None)
-    geodetic: int=field(init=False, repr=False, default=None)
+    geodetic: Geodetic=field(init=True, repr=False, default=None)
 
     def __post_init__(self):
         zip_parser = JpZipCode()
@@ -30,7 +32,8 @@ class JpAddress(object):
         else:
             self.prefecture = jp.name2normalize(self.prefecture)
         self.prefCode = jp.name2code(self.prefecture)
-        self.geodetic = jp.cityname2geodetic(self.city)
+        if not self.geodetic:
+            self.geodetic = jp.cityname2geodetic(self.city)
 
     def __str__(self):
         if self.zipCode:
@@ -87,6 +90,7 @@ class JpAddressParser(JpZipCode):
 
     def __init__(self):
         self.address_re = re.compile(self.__address_pattern, re.UNICODE)
+        self.jp_number = JpNumberParser()
         super().__init__()
 
     def parse_address(self, address):
@@ -105,8 +109,26 @@ class JpAddressParser(JpZipCode):
                 else:
                     city = city_normal
             street = re.sub('^[ 　]*', '', r.group(4))
+            normalized_street = self.jp_number.normalize_kanjinumber(street)
+            town = normalized_street.split('丁目')
+            if len(town) >1:
+                town = town[0] + '丁目'
+            else:
+                town = re.split('[-ー]', normalized_street)
+                if len(town) >1:
+                    town = town[0] + '丁目'
+                else:
+                    town = normalized_street[:6]
+            try:
+                town = jp.findtown(town, city)[0]
+                geodetic = town.geodetic
+            except:
+                geodetic = None
+
             result = JpAddress(zipCode=r.group(1),
                                prefecture=prefecture, city=city,
-                               street=street)
+                               street=street,
+                               geodetic=geodetic,
+                               )
         return result
 
