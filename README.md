@@ -1,5 +1,5 @@
 # jp_prefecture.
-> Japan prefecture and city names and codes
+> Japan prefecture and city names and codes, geodetic.
 
 Simple utility to convert the name of japanese prefectures and cities.
 
@@ -8,15 +8,17 @@ Simple utility to convert the name of japanese prefectures and cities.
 - short_name to full_name (prefecture only)
 - alphabet_name from/to full_name
 - validate for full_name and short_name, alphabet_name.
-- allow code as str or int.
+- allow str or int for input code.
 - support lists and pandas serires as input.
 - support checkdigits for citycode.
-- support regular expression for cityName.
-- get geodetic(latitude, longitude) from cityCode or cityName
+- support regular expression for cityName and town.
+- get geodetic(latitude, longitude) from cityCode or cityName, street address.
 
 Reference
 
 - https://www.soumu.go.jp/denshijiti/code.html (in japanese)
+- Geolpnia OpenData for japanese address.
+  - https://geolonia.github.io/japanese-addresses/
 
 ## Install
 
@@ -1323,7 +1325,8 @@ assert ( result == expect )
 
 - `kanji2number(val)`
 - `number2kanji(val, style)`
-- `parser_jpnumber(val)``
+  - style: 'kanji', 'arabic', 'mix', 'finance', 'daiji'
+- `normalize_kanjinumber(val)``
 
 ```python
 n [1]: from jp_prefecture.jp_numbers import JpNumberParser
@@ -1337,8 +1340,6 @@ In [4]: jn.number2kanji(87654, style='arabic')
 Out[4]: JpNumber(number=87654, as_str='87654', as_kanji='８７６５４')
 
 In [5]: jn.number2kanji(87654, style='mix')
-09:44:27.69 LOG:
-09:44:27.78 .... count = 0
 Out[5]: JpNumber(number=87654, as_str='87654', as_kanji='８万６５４')
 
 In [6]: jn.number2kanji(87654, style='finance')
