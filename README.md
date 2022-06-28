@@ -1369,7 +1369,7 @@ Out[12]: '京都府長岡京市天神二丁目十五-十三'
 ```
       jp_prefecture: 60.05 KB.
           jp_cities: 2919.74 KB.
-jp_cities_with_town: 130071.29 KB.
+jp_cities_with_town: 120326.30 KB.
      address parser: 15.07 KB.
 ```
 
