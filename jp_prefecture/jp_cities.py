@@ -31,12 +31,6 @@ class JpCity(JpPrefecture):
         super().__init__()
         self.cities = pd.read_csv(Path(__file__).parent / 'data/cities.csv',
                                   index_col = 0)
-        self.enable_town = os.environ.get('JP_PREFECTURE_ENABLE_TOWN',
-                                           default=enable_town)
-        if self.enable_town:
-            self.towns = pd.read_csv(Path(__file__).parent / 'data/towns.csv',
-                                  index_col = 0)
-
         self.cities['prefCode'] = pd.to_numeric(self.cities['prefCode'],
                                                 downcast='integer')
         self.cities['cityCode'] = pd.to_numeric(self.cities['cityCode'],
@@ -45,6 +39,21 @@ class JpCity(JpPrefecture):
         self.cities['longitude'].astype(float)
         self.cities['bigCityFlag'] = pd.to_numeric(self.cities['bigCityFlag'],
                                                 downcast='integer')
+
+        self.enable_town = os.environ.get('JP_PREFECTURE_ENABLE_TOWN',
+                                           default=enable_town)
+        if self.enable_town:
+            self.towns = pd.read_csv(Path(__file__).parent / 'data/towns.csv',
+                                  index_col = 0)
+            self.towns['prefCode'] = pd.to_numeric(self.towns['prefCode'],
+                                                downcast='integer')
+            self.towns['cityCode'] = pd.to_numeric(self.towns['cityCode'],
+                                                downcast='integer')
+            self.towns['latitude'].astype(float)
+            self.towns['longitude'].astype(float)
+            self.towns['bigCityFlag'] = pd.to_numeric(self.towns['bigCityFlag'],
+                                                downcast='integer')
+
         self.__citycode2name = ImmutableDict({
             code: name
             for code, name in zip(self.cities.cityCode,

@@ -300,6 +300,49 @@ In [4]:
 
 ```
 
+## Dataframe of Towns
+
+```python
+In [1]: import os
+
+In [2]: os.environ.update({'JP_PREFECTURE_ENABLE_TOWN': '1'})
+
+In [3]: from jp_prefecture.jp_cities import jp_cities as jp
+
+In [4]: jp.towns
+Out[4]:
+        prefCode  cityCode        town         townAlphabet  latitude  longitude  bigCityFlag
+0              1      1101      旭ケ丘一丁目         Asahigaoka 1   43.0422   141.3197            0
+1              1      1101  南二十五条西十一丁目  Minami25-Jonishi 11   43.0261   141.3446            0
+2              1      1101  南二十五条西十二丁目  Minami25-Jonishi 12   43.0259   141.3430            0
+3              1      1101  南二十五条西十三丁目  Minami25-Jonishi 13   43.0258   141.3412            0
+4              1      1101  南二十五条西十四丁目  Minami25-Jonishi 14   43.0255   141.3401            0
+...          ...       ...         ...                  ...       ...        ...          ...
+277186        47     47381         字鳩間                  NaN   24.4723   123.8204            0
+277187        47     47381         字竹富                  NaN   24.3261   124.0891            0
+277188        47     47381       字南風見仲                  NaN   24.2882   123.8880            0
+277189        47     47381         字新城                  NaN   24.2340   123.9449            0
+277190        47     47382        字与那国                  NaN   24.4559   122.9877            0
+
+In [5]: jp.towns.info()
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 277191 entries, 0 to 277190
+Data columns (total 7 columns):
+ #   Column        Non-Null Count   Dtype
+---  ------        --------------   -----
+ 0   prefCode      277191 non-null  int8
+ 1   cityCode      277191 non-null  int32
+ 2   town          277191 non-null  object
+ 3   townAlphabet  237491 non-null  object
+ 4   latitude      277191 non-null  float64
+ 5   longitude     277191 non-null  float64
+ 6   bigCityFlag   277191 non-null  int8
+dtypes: float64(2), int32(1), int8(2), object(2)
+memory usage: 12.2+ MB
+
+In [6]:
+```
+
 ## class JpPrefecture
 
  - `name2code()`
