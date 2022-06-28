@@ -1,6 +1,7 @@
+import os
 import sys
 sys.path.insert(0,"../jp_prefecture")
-
+os.environ.update({'JP_PREFECTURE_ENABLE_TOWN': '1'})
 from jp_prefecture.address import JpAddressParser, JpAddress
 
 class TestClass:

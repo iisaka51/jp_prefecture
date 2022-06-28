@@ -1282,6 +1282,7 @@ assert ( result == expect )
 - `number2kanji(val, style)`
 - `parser_jpnumber(val)``
 
+```python
 n [1]: from jp_prefecture.jp_numbers import JpNumberParser
 
 In [2]: jn = JpNumberParser()
@@ -1317,7 +1318,7 @@ Out[11]: JpNumber(number=87654, as_str='87654', as_kanji='捌萬漆仟陸佰伍�
 
 In [12]: jn.normalize_kanjinumber('京都府長岡京市天神２丁目１５-１３')
 Out[12]: '京都府長岡京市天神二丁目十五-十三'
-
+```
 
 
 ## Memory Usage
