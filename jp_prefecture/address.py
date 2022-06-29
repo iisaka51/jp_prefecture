@@ -131,7 +131,7 @@ class JpAddressParser(JpZipCode):
                 if len(town) >1:
                     town = town[0] + '丁目'
                 else:
-                    town = normalized_street[:6]
+                    town = re.split('[町村]', normalized_street)[0]
             try:
                 town = jp.findtown(town, city)[0]
                 geodetic = town.geodetic
