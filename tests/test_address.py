@@ -7,7 +7,7 @@ from jp_prefecture.address import JpAddressParser, JpAddress
 class TestClass:
     parser = JpAddressParser()
 
-    def test_jpaddressparser_kyoto_with_apartment(self):
+    def test_jpaddressparser_case01(self):
         data = '〒617-0826 京都府長岡京市開田1丁目-2-3 アパート123号室'
 
         addr = self.parser.parse_address(data)
@@ -20,7 +20,7 @@ class TestClass:
         assert ( addr.geodetic == (34.928769, 135.696847))
 
 
-    def test_jpaddressparser_with_zip(self):
+    def test_jpaddressparser_case02(self):
         data = '〒617-0824 長岡京市天神２丁目１５−１３'
 
         addr = self.parser.parse_address(data)
@@ -32,7 +32,7 @@ class TestClass:
         assert ( addr.__str__()
                  == '〒617-0824 京都府長岡京市天神２丁目１５−１３')
 
-    def test_jpaddressparser_with_7digit_zip(self):
+    def test_jpaddressparser_case03(self):
         data = '6170824 長岡京市天神２丁目１５−１３'
 
         addr = self.parser.parse_address(data)
@@ -44,7 +44,7 @@ class TestClass:
         assert ( addr.__str__()
                  == '〒617-0824 京都府長岡京市天神２丁目１５−１３')
 
-    def test_jpaddressparser_no_zip(self):
+    def test_jpaddressparser_case04(self):
         data = '長岡京市天神２丁目１５−１３'
 
         addr = self.parser.parse_address(data)
@@ -56,7 +56,7 @@ class TestClass:
         assert ( addr.__str__()
                  == '京都府長岡京市天神２丁目１５−１３')
 
-    def test_jpaddressparser_short_prefecture(self):
+    def test_jpaddressparser_case05(self):
         data = '京都長岡京市天神２丁目１５−１３'
 
         addr = self.parser.parse_address(data)
@@ -69,7 +69,7 @@ class TestClass:
                  == '京都府長岡京市天神２丁目１５−１３')
 
 
-    def test_jpaddressparser_short_prefecture_with_space(self):
+    def test_jpaddressparser_case06(self):
         data = '京都 長岡京市天神２丁目１５−１３'
 
         addr = self.parser.parse_address(data)
@@ -81,7 +81,7 @@ class TestClass:
         assert ( addr.__str__()
                  == '京都府長岡京市天神２丁目１５−１３')
 
-    def test_jpaddressparser_with_space(self):
+    def test_jpaddressparser_case07(self):
         data = '京都府 長岡京市天神２丁目１５−１３'
 
         addr = self.parser.parse_address(data)
@@ -93,7 +93,7 @@ class TestClass:
         assert ( addr.__str__()
                  == '京都府長岡京市天神２丁目１５−１３')
 
-    def test_jpaddressparser_no_prefecture(self):
+    def test_jpaddressparser_case08(self):
         data = '京都市下京区烏丸通七条下ル 東塩小路町 721-1'
 
         addr = self.parser.parse_address(data)
@@ -105,7 +105,7 @@ class TestClass:
         assert ( addr.cityCode == 26106)
         assert ( addr.geodetic == (35.002973, 135.764009))
 
-    def test_jpaddressparser_no_prefecture_with_space(self):
+    def test_jpaddressparser_case09(self):
         data = '京都市 下京区烏丸通七条下ル 東塩小路町 721-1'
 
         addr = self.parser.parse_address(data)
@@ -119,7 +119,7 @@ class TestClass:
         assert ( addr.__str__()
                  == '京都府京都市下京区烏丸通七条下ル 東塩小路町 721-1' )
 
-    def test_jpaddressparser_fuzzy(self):
+    def test_jpaddressparser_case10(self):
         data = '京都 下京区 烏丸通七条下ル 東塩小路町 721-1'
 
         addr = self.parser.parse_address(data)
@@ -133,30 +133,80 @@ class TestClass:
         assert ( addr.__str__()
                  == '京都府京都市下京区烏丸通七条下ル 東塩小路町 721-1' )
 
-    def test_jpaddressparser_tokyo_no_prefecture(self):
-        data = '千代田区丸の内1-9-2グラントウキョウサウスタワー23階'
-
+    def test_jpaddressparser_case11(self):
+        data = '東京都渋谷区桜丘町１２−３４'
         addr = self.parser.parse_address(data)
         assert ( addr.zipCode == None )
         assert ( addr.prefecture == '東京都')
-        assert ( addr.city == '千代田区' )
-        assert ( addr.street == '丸の内1-9-2グラントウキョウサウスタワー23階')
+        assert ( addr.city == '渋谷区' )
+        assert ( addr.street == '桜丘町１２−３４')
         assert ( addr.prefCode == 13)
-        assert ( addr.cityCode == 13101)
-        assert ( addr.geodetic == (35.68156, 139.767201))
+        assert ( addr.cityCode == 13113)
+        assert ( addr.geodetic == ( 35.668183, 139.709361) )
         assert ( addr.__str__()
-           ==  '東京都千代田区丸の内1-9-2グラントウキョウサウスタワー23階' )
+                 == '東京都渋谷区桜丘町１２−３４' )
 
-    def test_jpaddressparser_tokyo_no_prefecture_with_space(self):
-        data = '千代田区 丸の内1-9-2グラントウキョウサウスタワー23階'
-
+    def test_jpaddressparser_case12(self):
+        data = '東京都 渋谷区桜丘町１２−３４'
         addr = self.parser.parse_address(data)
         assert ( addr.zipCode == None )
         assert ( addr.prefecture == '東京都')
-        assert ( addr.city == '千代田区' )
-        assert ( addr.street == '丸の内1-9-2グラントウキョウサウスタワー23階')
+        assert ( addr.city == '渋谷区' )
+        assert ( addr.street == '桜丘町１２−３４')
         assert ( addr.prefCode == 13)
-        assert ( addr.cityCode == 13101)
-        assert ( addr.geodetic == ( 35.68156, 139.767201))
+        assert ( addr.cityCode == 13113)
+        assert ( addr.geodetic == ( 35.668183, 139.709361) )
         assert ( addr.__str__()
-           ==  '東京都千代田区丸の内1-9-2グラントウキョウサウスタワー23階' )
+                 == '東京都渋谷区桜丘町１２−３４' )
+
+    def test_jpaddressparser_case13(self):
+        data = '東京渋谷区桜丘町１２−３４'
+        addr = self.parser.parse_address(data)
+        assert ( addr.zipCode == None )
+        assert ( addr.prefecture == '東京都')
+        assert ( addr.city == '渋谷区' )
+        assert ( addr.street == '桜丘町１２−３４')
+        assert ( addr.prefCode == 13)
+        assert ( addr.cityCode == 13113)
+        assert ( addr.geodetic == ( 35.668183, 139.709361) )
+        assert ( addr.__str__()
+                 == '東京都渋谷区桜丘町１２−３４' )
+
+    def test_jpaddressparser_case14(self):
+        data = '東京 渋谷区桜丘町１２−３４'
+        addr = self.parser.parse_address(data)
+        assert ( addr.zipCode == None )
+        assert ( addr.prefecture == '東京都')
+        assert ( addr.city == '渋谷区' )
+        assert ( addr.street == '桜丘町１２−３４')
+        assert ( addr.prefCode == 13)
+        assert ( addr.cityCode == 13113)
+        assert ( addr.geodetic == ( 35.668183, 139.709361) )
+        assert ( addr.__str__()
+                 == '東京都渋谷区桜丘町１２−３４' )
+
+    def test_jpaddressparser_case15(self):
+        data = '東京 渋谷区 桜丘町１２−３４'
+        addr = self.parser.parse_address(data)
+        assert ( addr.zipCode == None )
+        assert ( addr.prefecture == '東京都')
+        assert ( addr.city == '渋谷区' )
+        assert ( addr.street == '桜丘町１２−３４')
+        assert ( addr.prefCode == 13)
+        assert ( addr.cityCode == 13113)
+        assert ( addr.geodetic == ( 35.668183, 139.709361) )
+        assert ( addr.__str__()
+                 == '東京都渋谷区桜丘町１２−３４' )
+
+    def test_jpaddressparser_case16(self):
+        data = '東京　渋谷区　桜丘町１２−３４'
+        addr = self.parser.parse_address(data)
+        assert ( addr.zipCode == None )
+        assert ( addr.prefecture == '東京都')
+        assert ( addr.city == '渋谷区' )
+        assert ( addr.street == '桜丘町１２−３４')
+        assert ( addr.prefCode == 13)
+        assert ( addr.cityCode == 13113)
+        assert ( addr.geodetic == ( 35.668183, 139.709361) )
+        assert ( addr.__str__()
+                 == '東京都渋谷区桜丘町１２−３４' )

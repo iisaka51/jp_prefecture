@@ -94,21 +94,34 @@ class JpAddressParser(JpZipCode):
         super().__init__()
 
     def parse_address(self, address):
+        address = address.replace('\u3000', ' ')
         r = self.address_re.search(address)
         result = None
         if r:
             prefecture = jp.name2normalize(r.group('Prefecture'))
             if not prefecture:
                 city = r.group('Prefecture') + r.group(3)
+                city_normal = jp.cityname2normalize(city)
+                if not city_normal:
+                    city = re.split('[区市]', city)[0]
+                    city = jp.findcity(city + '[区市].*')[0]
+                    city_normal = jp.cityname2normalize(city)
             else:
                 city = r.group(3).replace(' ', '')
                 city = city.replace('　', '') # Kanji Space
                 city_normal = jp.cityname2normalize(city)
-                if not city_normal:
-                    city = jp.findcity(r.group(2) + '.*' + city)[0]
-                else:
-                    city = city_normal
-            street = re.sub('^[ 　]*', '', r.group(4))
+            if not city_normal:
+                city = jp.findcity(r.group('Prefecture') + '.*' + city)
+                if city:
+                    city = city[0]
+            else:
+                city = city_normal
+            v  = address.split(city)
+            if len(v) == 2:
+                street = re.sub('^[ 　]*', '', v[1])
+            else:
+                street = re.sub('^[ 　]*', '', r.group(4))
+
             normalized_street = self.jp_number.normalize_kanjinumber(street)
             town = normalized_street.split('丁目')
             if len(town) >1:
