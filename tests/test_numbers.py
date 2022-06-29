@@ -12,7 +12,7 @@ class TestKanji2Number(TestClass):
         data = [ '〇', '一', '二', '三', '四', '五', '六', '七', '八', '九' ]
         for i, d in enumerate(data):
             v = self.parser.kanji2number(d)
-            assert ( v.number == i )
+            assert ( v.as_int == i )
             assert ( v.as_str == str(i) )
             assert ( v.as_kanji == d )
 
@@ -20,7 +20,7 @@ class TestKanji2Number(TestClass):
         data = ['０', '１', '２', '３', '４', '５', '６', '７', '８', '９']
         for i, d in enumerate(data):
             v = self.parser.kanji2number(d)
-            assert ( v.number == i )
+            assert ( v.as_int == i )
             assert ( v.as_str == str(i) )
             assert ( v.as_kanji == d )
 
@@ -31,7 +31,7 @@ class TestKanji2Number(TestClass):
                  '千三百':1_300, '一千三百': 1_300 }
         for d, n in data.items():
             v = self.parser.kanji2number(d)
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -42,7 +42,7 @@ class TestKanji2Number(TestClass):
                  '二百億': 20_000_000_000 }
         for d, n in data.items():
             v = self.parser.kanji2number(d)
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -50,7 +50,7 @@ class TestKanji2Number(TestClass):
         data = { '１０':10, '１１': 11, '１３５':135, '１３００':1_300 }
         for d, n in data.items():
             v = self.parser.kanji2number(d)
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -69,7 +69,7 @@ class TestKanji2Number(TestClass):
                  '２００，０００，０００，０００':200_000_000_000 }
         for d, n in data.items():
             v = self.parser.kanji2number(d)
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -79,7 +79,7 @@ class TestKanji2Number(TestClass):
                  '２００億':  20_000_000_000 }
         for d, n in data.items():
             v = self.parser.kanji2number(d)
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -89,7 +89,7 @@ class TestKanji2Number(TestClass):
         }
         for d, n in data.items():
             v = self.parser.kanji2number(d)
-            assert (v.number == n)
+            assert (v.as_int == n)
             assert (v.as_str == str(n))
             assert ( v.as_kanji == d )
 
@@ -100,7 +100,7 @@ class TestNumber2Kanji(TestClass):
         data = [ '〇', '一', '二', '三', '四', '五', '六', '七', '八', '九' ]
         for n, d in enumerate(data):
             v = self.parser.number2kanji(n)
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -108,7 +108,7 @@ class TestNumber2Kanji(TestClass):
         data = ['０', '１', '２', '３', '４', '５', '６', '７', '８', '９']
         for n, d in enumerate(data):
             v = self.parser.number2kanji(n, style='arabic')
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -116,7 +116,7 @@ class TestNumber2Kanji(TestClass):
         data = [ '〇', '一', '二', '三', '四', '五', '六', '七', '八', '九' ]
         for n, d in enumerate(data):
             v = self.parser.number2kanji(str(n))
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -124,7 +124,7 @@ class TestNumber2Kanji(TestClass):
         data = ['０', '１', '２', '３', '４', '５', '６', '７', '８', '９']
         for n, d in enumerate(data):
             v = self.parser.number2kanji(str(n), style='arabic')
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -133,7 +133,7 @@ class TestNumber2Kanji(TestClass):
         data = { '１０':10, '１１': 11, '１３５':135, '１３００':1_300 }
         for d, n in data.items():
             v = self.parser.number2kanji(n, style='arabic')
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -141,7 +141,7 @@ class TestNumber2Kanji(TestClass):
         data = { '１０':10, '１１': 11, '１３５':135, '１３００':1_300 }
         for d, n in data.items():
             v = self.parser.number2kanji(str(n), style='arabic')
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -154,7 +154,7 @@ class TestNumber2Kanji(TestClass):
                  '二百億': 20_000_000_000 }
         for d, n in data.items():
             v = self.parser.number2kanji(n)
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -165,7 +165,7 @@ class TestNumber2Kanji(TestClass):
                  '二千億':200_000_000_000 }
         for d, n in data.items():
             v = self.parser.number2kanji(str(n))
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -175,7 +175,7 @@ class TestNumber2Kanji(TestClass):
                  '２０００００００００００':200_000_000_000 }
         for d, n in data.items():
             v = self.parser.number2kanji(n, style='arabic')
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -185,17 +185,19 @@ class TestNumber2Kanji(TestClass):
                  '２０００００００００００':200_000_000_000 }
         for d, n in data.items():
             v = self.parser.number2kanji(str(n), style='arabic')
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
     def test_number2kanji_case5(self):
-        data = { '１３５０万': 13_500_000,
+        data = { '１億２３': 100_000_023,
+                 '８万７６５４': 87654,
+                 '１３５０万': 13_500_000,
                  '１億２３０万': 102_300_000,
                  '２０００億':200_000_000_000 }
         for d, n in data.items():
             v = self.parser.number2kanji(str(n), style='mix')
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -205,7 +207,7 @@ class TestNumber2Kanji(TestClass):
                  '２００，０００，０００，０００':200_000_000_000 }
         for d, n in data.items():
             v = self.parser.number2kanji(n, style='finance')
-            assert ( v.number == n )
+            assert ( v.as_int == n )
             assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
@@ -215,9 +217,11 @@ class TestNumber2Kanji(TestClass):
         }
         for d, n in data.items():
             v = self.parser.number2kanji(n, style='daiji')
-            assert (v.number == n)
+            assert (v.as_int == n)
             assert (v.as_str == str(n))
             assert ( v.as_kanji == d )
+
+class TestNormalize(TestClass):
 
     def test_normalized_kanji_case1(self):
         data = '京都府長岡京市天神2丁目15-13'
