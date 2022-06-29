@@ -62,7 +62,7 @@ NOT_KANJI_ARABIC_NUMBERS = (
 )
 
 class JpNumber(NamedTuple):
-    number: Optional[int]=None
+    as_int: Optional[int]=None
     as_str: Optional[str]=None
     as_kanji: Optional[str]=None
 
@@ -230,8 +230,9 @@ class JpNumberParser(object):
 
             if kanji_unit in self.__KANJI_MAJOR_UNITS:
                 if count < 4:
-                    stack_size = len(stack) -1
-                    stack[stack_size] = kanji_unit
+                    for _ in range(count):
+                        stack.pop(-1)
+                    stack.append(kanji_unit)
                 else:
                     stack.append(kanji_unit)
                 count = 0
@@ -311,7 +312,8 @@ class JpNumberParser(object):
         }
 
         replace_daiji = {
-            '〇': '零', '一': '壱',
+            '〇': '零',
+            '一': '壱',
             '二': '弐',
             '三': '参',
             '四': '肆',
@@ -420,13 +422,13 @@ class JpNumberParser(object):
 
         Logic
         -----
-            val 一億二百三十万
+            val: 一億二百三十万
             Step1:  Split Major Unit
                  stack[一, 100000000, 二百三十, 10000]
             Step2:  Split Minor Unit
                  stack[一, 100000000, 二, 100, 三十, 10000]
                  stack[一, 100000000, 二, 100, 三, 10, 10000]
-            Step3:   numeric strings to interger
+            Step3:   convert kanji digits to interger
                  stack[1 , 10000000, 2, 100, 3, 10, 10000]
             Step4:  calculartion
                  1 x 100000000 + (2 x100 + 3 x 30) x 10000
@@ -661,6 +663,22 @@ class JpNumberParser(object):
             endwith: Optional[re.Pattern]=None,
             max_try: int=5
         ) -> Optional[str]:
+       """
+        Parameters
+        ----------
+        text: str
+            text which cotain numbers
+        startwith: re.Pattern
+            if set pattern. serach with this values for text
+        endwith: re.Pattern
+            if set pattern. serach with this values for text
+        max_try: int
+            maxium try to normalize. default is 5.
+
+        Returns
+        -------
+            normalized text
+       """
 
        normalized_text =''
        do_normalize  = True
@@ -669,7 +687,7 @@ class JpNumberParser(object):
            result = self.parse_number(text, startwith, endwith)
            if result:
                if text != result.number.as_kanji:
-                   kanji_number = self.number2kanji(result.number.number)
+                   kanji_number = self.number2kanji(result.number.as_int)
                    normalized_text  = ( str(result.prefix)
                                 + str(kanji_number.as_kanji)
                                 + str(result.suffix) )
@@ -679,7 +697,7 @@ class JpNumberParser(object):
            result = self.parse_kanjinumber(text, startwith, endwith)
            if result:
                if text != result.number.as_kanji:
-                   kanji_number = self.number2kanji(result.number.number)
+                   kanji_number = self.number2kanji(result.number.as_int)
                    normalized_text  = ( str(result.prefix)
                                 + str(kanji_number.as_kanji)
                                 + str(result.suffix ) )

@@ -1340,7 +1340,7 @@ In [4]: jn.number2kanji(87654, style='arabic')
 Out[4]: JpNumber(number=87654, as_str='87654', as_kanji='８７６５４')
 
 In [5]: jn.number2kanji(87654, style='mix')
-Out[5]: JpNumber(number=87654, as_str='87654', as_kanji='８万６５４')
+Out[5]: JpNumber(number=87654, as_str='87654', as_kanji='８万７６５４')
 
 In [6]: jn.number2kanji(87654, style='finance')
 Out[6]: JpNumber(number=87654, as_str='87654', as_kanji='８７，６５４')
