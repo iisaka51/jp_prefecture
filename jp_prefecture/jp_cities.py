@@ -20,9 +20,9 @@ class JpTown(object):
     prefecture: str
     city: str
     town: str
-    prefCode: int=field(repr=False, default=None)
-    cityCode: int=field(repr=False, default=None)
-    geodetic: Geodetic=field(repr=False, default=None)
+    prefCode: Optional[int]=field(repr=False, default=None)
+    cityCode: Optional[int]=field(repr=False, default=None)
+    geodetic: Optional[Geodetic]=field(repr=False, default=None)
 
 class JpCity(JpPrefecture):
     def __init__(self, enable_town:bool=False):
@@ -138,7 +138,7 @@ class JpCity(JpPrefecture):
         return code
 
     @cityname2code.register(re.Pattern)
-    def _cityname2code_str(self,
+    def _cityname2code_re(self,
             name: re.Pattern,
             ignore_case: bool=False,
             checkdigit: bool=False,
@@ -336,16 +336,16 @@ class JpCity(JpPrefecture):
     def citycode2normalize(self,
             citycode: Union[int, str],
             as_str: bool=False,
-        )-> Optional[int]:
+        )-> Optional[Union[int, str]]:
         if isinstance(citycode, int):
             citycode = str(citycode).zfill(5)
 
         try:
             if len(citycode) == 6:
                 citycode = validate_checkdigit(citycode)  # type: ignore
-            citycode = [int(citycode), citycode][as_str]
+            citycode = [int(citycode), citycode][as_str]  # type: ignore
         except:
-            citycode = None
+            citycode = None       # type: ignore
 
         return citycode
 
@@ -376,7 +376,7 @@ class JpCity(JpPrefecture):
             raise NotImplementedError('Town data does not enabled.')
 
         if city:
-            city = self.cityname2code(city)
+            city = self.cityname2code(city)   # type: ignore
             df = self.towns[self.towns['cityCode'] == city]
         else:
             df = self.towns.copy()
@@ -534,7 +534,7 @@ class JpCity(JpPrefecture):
         """ Return Latitude and Longitude of CityName """
         code = self.cityname2code(name_list, ignore_case)
         geodetic = list()
-        for c in code:
+        for c in code:        # type: ignore
             city = self.cities.loc[self.cities['cityCode'] == c]
             pos = Geodetic( city['latitude'].values[0],
                     city['longitude'].values[0] )

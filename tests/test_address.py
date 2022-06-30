@@ -224,4 +224,3 @@ class TestClass:
         assert ( addr.geodetic == ( 35.655642, 139.700634) )
         assert ( str(addr)
                  == '東京都渋谷区桜丘町１２−３４' )
-

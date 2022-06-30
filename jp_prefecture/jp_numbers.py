@@ -174,7 +174,7 @@ class JpNumberParser(object):
             token_list: list,
             style: Style
         )->list:
-        stack = list()
+        stack = list()         # type: ignore
         if style not in ['kanji', 'daiji']:
             return stack
 
@@ -211,7 +211,7 @@ class JpNumberParser(object):
         )->list:
 
         count = 0
-        stack = list()
+        stack = list()     # type: ignore
         if style not in ['mix']:
             return stack
 
@@ -245,16 +245,14 @@ class JpNumberParser(object):
             if count >= 4:
                 del(stack[-5:])
 
-
-
-        return reversed(stack)
+        return reversed(stack)    # type: ignore
 
     def _number2arabic_parser(self,
             token_list: list,
             style: Style
         )->list:
 
-        stack = list()
+        stack = list()            # type: ignore
         if style not in ['arabic', 'finance']:
             return stack
 
@@ -274,7 +272,7 @@ class JpNumberParser(object):
                     sub_unit = 1
             if new_stack[-1] == '，':
                 new_stack.pop(-1)
-            stack = reversed(new_stack)
+            stack = reversed(new_stack)   # type: ignore
         return stack
 
     def number2kanji(self,
@@ -360,7 +358,7 @@ class JpNumberParser(object):
 
     def kanji2arabic_parser(self,
            val : str,
-        )-> list:
+        )-> int:
         # １２３０００００
         unit = 1
         number = 0
@@ -372,7 +370,7 @@ class JpNumberParser(object):
 
     def kanji2mix_parser(self,
            val : str,
-        )-> list:
+        )-> int:
 
         # val １億２千２３０万
         #  conver strings from kanji arabic char to numeric digits.
@@ -381,7 +379,7 @@ class JpNumberParser(object):
         #  stack[1 x 100000000, (2 x 1000 + 230) x 10000]
         # sum(stack)
 
-        stack = list()
+        stack = list()      # type: ignore
         as_str = ''
         for c in val:
             if c in self.__KanjiNumber2Number:
@@ -413,7 +411,7 @@ class JpNumberParser(object):
 
     def kanji2number_parser(self,
            val : str,
-        )-> list:
+        )-> int:
         """
         Parameters
         ----------
@@ -435,7 +433,7 @@ class JpNumberParser(object):
         """
         as_str = val
         number = 0
-        stack = list()
+        stack = list()      # type: ignore
         for sp in self.__KANJI_MAJOR_UNITS:
             r = as_str.split(sp)
             if len(r) != 1:
@@ -468,7 +466,7 @@ class JpNumberParser(object):
             for sp in self.__KANJI_MINOR_UNITS.keys():
                 r = as_str.split(sp)
                 if len(r) != 1:
-                    stack2.append(self.__KANJI_MINOR_UNITS[sp])
+                    stack2.append(self.__KANJI_MINOR_UNITS[sp]) # type: ignore
                     if r[0] == '':
                         stack2.append('一')
                     else:
@@ -489,11 +487,11 @@ class JpNumberParser(object):
         base_unit = unit = 1
         for word in stack2:
             if word in self.__KANJI_UNIT_MAPPER.values():
-                base_unit = word
+                base_unit = word          # type: ignore
                 unit = 1
                 continue
             elif word in self.__KANJI_MINOR_UNITS.values():
-                unit = word
+                unit = word               # type: ignore
                 continue
             else:
                 number += self.__KanjiNumber2Number[word] * unit * base_unit
@@ -542,7 +540,7 @@ class JpNumberParser(object):
         for src, dst in replace_comma.items() :
                 val = re.sub(src, dst, val)
 
-        stack = list()
+        stack = list()      # type: ignore
         for c in val:
             if ( c in self.__unit_mapper
                  or c in self.__KanjiNumber2Number):
@@ -576,13 +574,13 @@ class JpNumberParser(object):
         ) -> Optional[ParseNumber]:
 
         if not startwith:
-            startwith = f'{NOT_KANJI_ARABIC_NUMBERS}'
+            startwith = f'{NOT_KANJI_ARABIC_NUMBERS}'          # type: ignore
 
         if not endwith:
-            endwith = f'{NOT_KANJI_ARABIC_NUMBERS}' + r'(.*)?'
+            endwith = f'{NOT_KANJI_ARABIC_NUMBERS}' + r'(.*)?' # type: ignore
 
         kanji_number = re.compile(
-             startwith + f'{KANJI_ARABIC_NUMBERS}' + endwith,
+             startwith + f'{KANJI_ARABIC_NUMBERS}' + endwith,  # type: ignore
              re.UNICODE
         )
 
@@ -620,13 +618,13 @@ class JpNumberParser(object):
         ) -> Optional[ParseNumber]:
 
         if not startwith:
-            startwith = f'{NOT_NUMBERS}'
+            startwith = f'{NOT_NUMBERS}'             # type: ignore
 
         if not endwith:
-            endwith = f'{NOT_NUMBERS}' + r'(.*)?'
+            endwith = f'{NOT_NUMBERS}' + r'(.*)?'    # type: ignore
 
         number = re.compile(
-             startwith + f'{NUMBERS}' + endwith,
+             startwith + f'{NUMBERS}' + endwith,     # type: ignore
              re.UNICODE
         )
 
@@ -650,8 +648,8 @@ class JpNumberParser(object):
                     suffix = str().join(match.groups()[2:])
                 else:
                     suffix = ''
-            number = self.number2kanji(text)
-            result = ParseNumber(prefix,  number, suffix)
+            number = self.number2kanji(text)               # type: ignore
+            result = ParseNumber(prefix,  number, suffix)  # type: ignore
         else:
             result = None
 
@@ -687,7 +685,7 @@ class JpNumberParser(object):
            result = self.parse_number(text, startwith, endwith)
            if result:
                if text != result.number.as_kanji:
-                   kanji_number = self.number2kanji(result.number.as_int)
+                   kanji_number = self.number2kanji(result.number.as_int) # type: ignore
                    normalized_text  = ( str(result.prefix)
                                 + str(kanji_number.as_kanji)
                                 + str(result.suffix) )
@@ -697,7 +695,7 @@ class JpNumberParser(object):
            result = self.parse_kanjinumber(text, startwith, endwith)
            if result:
                if text != result.number.as_kanji:
-                   kanji_number = self.number2kanji(result.number.as_int)
+                   kanji_number = self.number2kanji(result.number.as_int) # type: ignore
                    normalized_text  = ( str(result.prefix)
                                 + str(kanji_number.as_kanji)
                                 + str(result.suffix ) )

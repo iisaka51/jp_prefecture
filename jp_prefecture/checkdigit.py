@@ -38,7 +38,7 @@ def validate_checkdigit(
         check_digit = int(number[-1])
         number = number[:-1]
     else:
-        return [number, int(number)][input_as_int]
+        return [number, int(number)][input_as_int]   # type: ignore
 
     len_number = len(number)
     if not num_digits:
@@ -51,7 +51,7 @@ def validate_checkdigit(
         result = sum(w * (int(x)) for w, x in zip(weights, number))
         result = (11 - (result % 11)) == check_digit
 
-    number = [number, int(number)][input_as_int]
+    number = [number, int(number)][input_as_int]     # type: ignore
     result = number if result else None
     return result
 

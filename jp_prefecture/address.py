@@ -14,9 +14,9 @@ class JpAddress(object):
     prefecture: str
     city: str
     street: str
-    prefCode: int=field(init=False, repr=False, default=None)
-    cityCode: int=field(init=False, repr=False, default=None)
-    geodetic: Geodetic=field(init=True, repr=False, default=None)
+    prefCode: Optional[int]=field(init=False, repr=False, default=None)
+    cityCode: Optional[int]=field(init=False, repr=False, default=None)
+    geodetic: Optional[Geodetic]=field(init=True, repr=False, default=None)
 
     def __post_init__(self):
         zip_parser = JpZipCode()
@@ -104,11 +104,14 @@ class JpAddressParser(JpZipCode):
                 city_normal = jp.cityname2normalize(city)
                 if not city_normal:
                     city = re.split('[区市]', city)[0]
-                    city = jp.findcity(city + '[区市].*')[0]
+                    try:
+                        city = jp.findcity(city + '[区市].*')[0]
+                    except:
+                        city = ''
                     city_normal = jp.cityname2normalize(city)
             else:
                 city = r.group(3).replace(' ', '')
-                city = city.replace('　', '') # Kanji Space
+                city = city.replace('\u3000', '') # Kanji Space
                 city_normal = jp.cityname2normalize(city)
             if not city_normal:
                 city = jp.findcity(r.group('Prefecture') + '.*' + city)
@@ -120,7 +123,12 @@ class JpAddressParser(JpZipCode):
             if len(v) == 2:
                 street = re.sub('^[ 　]*', '', v[1])
             else:
-                street = re.sub('^[ 　]*', '', r.group(4))
+                if prefecture:
+                    street = re.sub('^[ 　]*', '', r.group(4))
+                else:
+                    re_groups = list(r.groups())
+                    street = str().join(re_groups[2:])
+                    street = re.sub('^[ 　]*', '', street)
 
             normalized_street = self.jp_number.normalize_kanjinumber(street)
             town = normalized_street.split('丁目')
