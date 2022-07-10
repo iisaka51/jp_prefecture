@@ -57,5 +57,5 @@ def df_compare(
 
     diff_df = pd.concat([df1,df2]).drop_duplicates(keep=False)
     diffs = len(diff_df)
-    result = [diffs == 0, diffs][diff_count]
+    result = diffs if diff_count else diffs == 0
     return result

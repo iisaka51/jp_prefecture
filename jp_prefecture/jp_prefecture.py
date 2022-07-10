@@ -136,7 +136,7 @@ class JpPrefecture(object):
         ) -> Optional[int]:
         """ Convert prefecture name to code """
         try:
-            name = [name, name.capitalize()][ignore_case]
+            name = name.capitalize() if ignore_case else name
             code = self.__name2code[name]
         except KeyError:
             code = None
@@ -158,8 +158,8 @@ class JpPrefecture(object):
         ) -> pd.Series:
         """ Convert pandas series of prefecture name to code """
         try:
-            name_series = [name_series,
-                           name_series.str.capitalize()][ignore_case]
+            name_series = ( name_series.str.capitalize()
+                            if ignore_case else name_series )
             code = name_series.map(self.__name2code)
         except KeyError:
             code = pd.Series([])
@@ -185,8 +185,8 @@ class JpPrefecture(object):
         ) -> Optional[str]:
         """ Convert prefecture code to name """
         try:
-            name = [self.__code2name[code],
-                    self.__code2alphabet[code]][ascii]
+            name = ( self.__code2alphabet[code]
+                     if ascii else self.__code2name[code] )
         except KeyError:
             name = None
         return name
@@ -198,8 +198,8 @@ class JpPrefecture(object):
         ) -> Optional[str]:
         """ Convert prefecture code to name """
         try:
-            name = [self.__code2name[int(code)],
-                    self.__code2alphabet[int(code)]][ascii]
+            name = ( self.__code2alphabet[int(code)]
+                     if ascii else self.__code2name[int(code)] )
         except KeyError:
             name = None
         return name
@@ -221,8 +221,8 @@ class JpPrefecture(object):
         """ Convert pandas series of prefecture code to alphabet_name """
         try:
             code_series = code_series.astype(int)
-            name = [ code_series.map(self.__code2name),
-                     code_series.map(self.__code2alphabet) ][ascii]
+            name = ( code_series.map(self.__code2alphabet)
+                     if ascii else code_series.map(self.__code2name) )
         except KeyError:
             name = pd.Series([])
         return name
@@ -250,9 +250,9 @@ class JpPrefecture(object):
         ) -> Optional[str]:
         """ Convert prefecture name to name or alphabet_name """
         try:
-            name = [name, name.capitalize()][ignore_case]
-            normalize = [ self.__alphabet2name[name],
-                     self.__name2alphabet[name] ][ascii]
+            name = name.capitalize() if ignore_case else name
+            normalize = ( self.__name2alphabet[name]
+                          if ascii else self.__alphabet2name[name] )
         except KeyError:
             normalize = None
         return normalize
@@ -275,10 +275,10 @@ class JpPrefecture(object):
         ) -> pd.Series:
         """ Convert pandas series of prefecture name to alphabet_name """
         try:
-            name_series = [name_series,
-                           name_series.str.capitalize()][ignore_case]
-            code = [ name_series.map(self.__alphabet2name),
-                     name_series.map(self.__name2alphabet) ][ascii]
+            name_series = ( name_series.str.capitalize()
+                            if ignore_case else name_series )
+            code = ( name_series.map(self.__name2alphabet)
+                     if ascii else name_series.map(self.__alphabet2name) )
         except KeyError:
             code = pd.Series([])
         return code
@@ -303,7 +303,7 @@ class JpPrefecture(object):
         ) -> bool:
         """ validate a prefecture name """
         try:
-            name = [name, name.capitalize()][ignore_case]
+            name = name.capitalize() if ignore_case else name
             v = name in self.__name2code.keys()
         except:
             v = False

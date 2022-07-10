@@ -128,11 +128,11 @@ class JpCity(JpPrefecture):
         ) -> Optional[str]:
         """ Convert cityName to cityCode """
         try:
-            name = [name, name.title()][ignore_case]
+            name = name.title() if ignore_case else name
             code = self.__cityname2code[name]
             if code:
-                code = [code, str(code).zfill(5)][as_str]
-                code = [code, calc_checkdigit(code)][checkdigit]
+                code = str(code).zfill(5) if as_str else code
+                code = calc_checkdigit(code) if checkdigit else code
         except KeyError:
             code = None
         return code
@@ -175,11 +175,10 @@ class JpCity(JpPrefecture):
         ) -> pd.Series:
         """ Convert pandas series of cityName to cityCode """
         try:
-            name_series = [name_series,
-                           name_series.str.title()][ignore_case]
+            name_series = ( name_series.str.title()
+                            if ignore_case else name_series )
             code = name_series.map(self.__cityname2code)
-            code = [code,
-                    code.map(calc_checkdigit)][checkdigit]
+            code = code.map(calc_checkdigit) if checkdigit else code
         except KeyError:
             code = pd.Series([])
         return code
@@ -208,8 +207,8 @@ class JpCity(JpPrefecture):
         if len(str(code)) == 6:
             code = validate_checkdigit(code)  # type: ignore
         try:
-            name = [ self.__citycode2name[code],
-                     self.__citycode2alphabet[code]][ascii]
+            name = ( self.__citycode2alphabet[code]
+                     if ascii else self.__citycode2name[code] )
         except KeyError:
             name = None
         return name
@@ -227,8 +226,8 @@ class JpCity(JpPrefecture):
         else:
             code = int(code)   # type: ignore
         try:
-            name = [ self.__citycode2name[code],
-                     self.__citycode2alphabet[code]][ascii]
+            name = ( self.__citycode2alphabet[code]
+                     if ascii else self.__citycode2name[code] )
         except:
             name = None
         return name
@@ -254,8 +253,8 @@ class JpCity(JpPrefecture):
         """
         try:
             code_series.astype(int)
-            name = [ code_series.map(self.__citycode2name),
-                     code_series.map(self.__citycode2alphabet)][ascii]
+            name = ( code_series.map(self.__citycode2alphabet)
+                     if ascii else code_series.map(self.__citycode2name) )
         except:
             name = pd.Series([])
         return name
@@ -286,9 +285,9 @@ class JpCity(JpPrefecture):
             if set ``True`` to ascii, return cityName as alphabet_name
         """
         try:
-            name = [name, name.title()][ignore_case]
-            name = [ self.__cityalphabet2name[name],
-                     self.__cityname2alphabet[name] ][ascii]
+            name = name.title() if ignore_case else name
+            name = ( self.__cityname2alphabet[name]
+                     if ascii else self.__cityalphabet2name[name] )
         except KeyError:
             name = None    # type: ignore
         return name
@@ -317,10 +316,10 @@ class JpCity(JpPrefecture):
             if set ``True`` to ascii, return cityName as alphabet_name
         """
         try:
-            name_series = [name_series,
-                           name_series.str.title()][ignore_case]
-            name = [ name_series.map(self.__cityalphabet2name),
-                     name_series.map(self.__cityname2alphabet) ][ascii]
+            name_series = ( name_series.str.title()
+                            if ignore_case else name_series )
+            name = ( name_series.map(self.__cityname2alphabet)
+                     if ascii else name_series.map(self.__cityalphabet2name) )
         except KeyError:
             name = pd.Series([])
         return name
@@ -343,7 +342,7 @@ class JpCity(JpPrefecture):
         try:
             if len(citycode) == 6:
                 citycode = validate_checkdigit(citycode)  # type: ignore
-            citycode = [int(citycode), citycode][as_str]  # type: ignore
+            citycode = citycode if as_str else int(citycode) # type: ignore
         except:
             citycode = None       # type: ignore
 
@@ -354,7 +353,7 @@ class JpCity(JpPrefecture):
             ignore_case: bool=False,
             ascii: bool=False,
         ) -> list:
-        flag = [0, re.IGNORECASE][ignore_case]
+        flag = re.IGNORECASE if ignore_case else 0
         result = [ re.search(name, x, flag)
                    for x in self.__cityname2code.keys() ]
         cities = list()
@@ -362,7 +361,7 @@ class JpCity(JpPrefecture):
             if x:
                 city = x.group(0).title()
                 if city in self.__cityname2code.keys():
-                    name = [ city, self.__cityname2alphabet[city] ][ascii]
+                    name = self.__cityname2alphabet[city] if ascii else city
                     if name not in cities:
                         cities.append(name)
 
@@ -419,7 +418,7 @@ class JpCity(JpPrefecture):
             ignore_case: bool=False
         ) -> Optional[int]:
         """ Convert CityName to Prefecture Code"""
-        name = [name, name.title()][ignore_case]
+        name = name.title() if ignore_case else name
         code = self.__cityname2code[name]
         prefcode = self.get_prefcode(code)
         return prefcode
@@ -440,8 +439,8 @@ class JpCity(JpPrefecture):
         ) -> pd.Series:
         """ Convert pandas series of cityName to Prefecture Code """
         try:
-            name_series = [name_series,
-                           name_series.str.title()][ignore_case]
+            name_series = ( name_series.str.title()
+                            if ignore_case else name_series )
             code = name_series.map(self.__cityname2code)
             code = code.map(self.get_prefcode)
         except KeyError:
@@ -469,7 +468,7 @@ class JpCity(JpPrefecture):
             ignore_case: bool=False
         ) -> Optional[str]:
         """ Convert CityName to Prefecture Name"""
-        name = [name, name.title()][ignore_case]
+        name = name.title() if ignore_case else name
         code = self.cityname2prefcode(name)
         name = code and self.code2name(code, ascii)  # type: ignore
         return name
@@ -493,8 +492,8 @@ class JpCity(JpPrefecture):
         ) -> pd.Series:
         """ Convert pandas series of cityName to Prefecture Name """
         try:
-            name_series = [name_series,
-                           name_series.str.title()][ignore_case]
+            name_series = ( name_series.str.title()
+                            if ignore_case else name_series )
             code = name_series.map(self.cityname2prefcode)
             name = code.apply(self.code2name, ascii=ascii)
         except KeyError:
@@ -632,7 +631,7 @@ class JpCity(JpPrefecture):
         ) -> bool:
         """ validate_city a cityName """
         try:
-            name = [name, name.title()][ignore_case]
+            name = name.title() if ignore_case else name
             v = name in self.__cityname2code.keys()
         except:
             v = False
