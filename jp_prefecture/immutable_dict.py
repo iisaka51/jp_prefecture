@@ -14,7 +14,7 @@ class ImmutableDict(dict):
         return dict.__getattribute__(self, attribute)
 
     def __hash__(self):
-        return hash(tuple(sorted(self.iteritems())))
+        return hash(tuple(sorted(self.items())))
 
     def fromkeys(self, S, v):
         return type(self)(dict(self).fromkeys(S, v))
