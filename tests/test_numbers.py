@@ -1,7 +1,7 @@
 import sys
-sys.path.insert(0,"../jp_numbers")
+sys.path.insert(0,"../jp_prefecture")
 
-from jp_numbers import JpNumberParser
+from jp_prefecture.jp_numbers import JpNumberParser
 
 class TestClass:
     parser = JpNumberParser()

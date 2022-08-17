@@ -53,16 +53,48 @@ parser = JpAddressParser()
 
 - `parse_address()`
 
+default is disabled town. just for parse city and address format.
 
 ```python
 import os
-os.environ.update({'JP_PREFECTURE_ENABLE_TOWN': '1'})
 from jp_prefecture.address import JpAddressParser, JpAddress
 
 parser = JpAddressParser()
 
 data = '〒617-0826 京都府長岡京市開田1丁目-2-3 アパート123号室'
+
+addr = parser.parse_address(data)
+assert ( addr.zipCode == '6170826' )
+assert ( addr.prefecture == '京都府' )
+assert ( addr.city == '長岡京市' )
+assert ( addr.street == '開田1丁目-2-3 アパート123号室')
+assert ( addr.prefCode == 26)
+assert ( addr.cityCode == 26209)
+assert ( addr.geodetic == (34.937151, 135.676083))
+assert ( addr.validate == True )
+assert ( str(addr)
+         == '〒617-0826 京都府長岡京市開田1丁目-2-3 アパート123号室' )
+
+# NON-EXISTENT ADDRESS
+data = '渋谷区永福町１２−３４'
+
 addr = self.parser.parse_address(data)
+assert ( addr.zipCode == None )
+assert ( addr.prefecture == '東京都')
+assert ( addr.city == '渋谷区' )
+assert ( addr.street == '永福町１２−３４')
+assert ( addr.prefCode == 13)
+assert ( addr.cityCode == 13113)
+assert ( addr.geodetic == ( 35.668183, 139.709361) )
+assert ( addr.validate == True )
+assert ( str(addr)
+         == '東京都渋谷区永福町１２−３４' )
+
+parser = JpAddressParser(enable_town=True)
+
+data = '〒617-0826 京都府長岡京市開田1丁目-2-3 アパート123号室'
+
+addr = parser.parse_address(data)
 assert ( addr.zipCode == '6170826' )
 assert ( addr.prefecture == '京都府' )
 assert ( addr.city == '長岡京市' )
@@ -70,106 +102,119 @@ assert ( addr.street == '開田1丁目-2-3 アパート123号室')
 assert ( addr.prefCode == 26)
 assert ( addr.cityCode == 26209)
 assert ( addr.geodetic == (34.928769, 135.696847))
+assert ( addr.validate == True )
 assert ( str(addr)
          == '〒617-0826 京都府長岡京市開田1丁目-2-3 アパート123号室' )
 
+data = '渋谷区永福町１２−３４'
+
+addr = self.parser.parse_address(data)
+assert ( addr.zipCode == None )
+assert ( addr.prefecture == '東京都')
+assert ( addr.city == '渋谷区' )
+assert ( addr.street == '永福町１２−３４')
+assert ( addr.prefCode == 13)
+assert ( addr.cityCode == 13113)
+assert ( addr.geodetic == None )
+assert ( addr.validate == False )
+assert ( str(addr)
+         == '東京都渋谷区永福町１２−３４' )
+
+```
+
+```python
+from jp_prefecture.address import JpAddressParser, JpAddress
+
+# os.environ.update({'JP_PREFECTURE_ENABLE_TOWN': '1'})
+# parser = JpAddressParser()
+#
+parser = JpAddressParser(enable_town=True)
 
 data = '〒617-0824 長岡京市天神２丁目１５−１３'
+
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == '6170824' )
 assert ( addr.prefecture == '京都府' )
 assert ( addr.city == '長岡京市' )
 assert ( addr.street == '天神２丁目１５−１３')
 assert ( addr.geodetic == (34.923314, 135.685162))
+assert ( addr.validate == True )
 assert ( str(addr)
          == '〒617-0824 京都府長岡京市天神２丁目１５−１３')
 
 data = '6170824 長岡京市天神２丁目１５−１３'
+
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == '6170824' )
 assert ( addr.prefecture == '京都府' )
 assert ( addr.city == '長岡京市' )
 assert ( addr.street == '天神２丁目１５−１３')
 assert ( addr.geodetic == (34.923314, 135.685162))
+assert ( addr.validate == True )
 assert ( str(addr)
          == '〒617-0824 京都府長岡京市天神２丁目１５−１３')
 
 data = '長岡京市天神２丁目１５−１３'
+
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == None )
 assert ( addr.prefecture == '京都府' )
 assert ( addr.city == '長岡京市' )
 assert ( addr.street == '天神２丁目１５−１３')
 assert ( addr.geodetic == (34.923314, 135.685162))
+assert ( addr.validate == True )
 assert ( str(addr)
          == '京都府長岡京市天神２丁目１５−１３')
 
 data = '京都長岡京市天神２丁目１５−１３'
+
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == None )
 assert ( addr.prefecture == '京都府' )
 assert ( addr.city == '長岡京市' )
 assert ( addr.street == '天神２丁目１５−１３')
 assert ( addr.geodetic == (34.923314, 135.685162))
-assert ( addr.__str__()
+assert ( addr.validate == True )
+assert ( str(addr)
          == '京都府長岡京市天神２丁目１５−１３')
 
-
 data = '京都 長岡京市天神２丁目１５−１３'
+
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == None )
 assert ( addr.prefecture == '京都府' )
 assert ( addr.city == '長岡京市' )
 assert ( addr.street == '天神２丁目１５−１３')
 assert ( addr.geodetic == (34.923314, 135.685162))
+assert ( addr.validate == True )
 assert ( str(addr)
          == '京都府長岡京市天神２丁目１５−１３')
 
 data = '京都府 長岡京市天神２丁目１５−１３'
+
 addr = self.parser.parse_address(data)
 assert ( addr.zipCode == None )
 assert ( addr.prefecture == '京都府' )
 assert ( addr.city == '長岡京市' )
 assert ( addr.street == '天神２丁目１５−１３')
 assert ( addr.geodetic == (34.923314, 135.685162))
+assert ( addr.validate == True )
 assert ( str(addr)
          == '京都府長岡京市天神２丁目１５−１３')
 
-data = '京都市下京区烏丸通七条下ル 東塩小路町 721-1'
-addr = self.parser.parse_address(data)
-assert ( addr.zipCode == None )
-assert ( addr.prefecture == '京都府' )
-assert ( addr.city == '京都市下京区' )
-assert ( addr.street == '烏丸通七条下ル 東塩小路町 721-1')
-assert ( addr.prefCode == 26)
-assert ( addr.cityCode == 26106)
-assert ( addr.geodetic == (35.002973, 135.764009))
-assert ( str(addr)
-         == '京都府京都市下京区烏丸通七条下ル 東塩小路町 721-1' )
+data = '〒604-0836 京都府京都市中京区船屋町４００−１'
 
-data = '京都市 下京区烏丸通七条下ル 東塩小路町 721-1'
 addr = self.parser.parse_address(data)
-assert ( addr.zipCode == None )
+assert ( addr.zipCode == '6040836' )
 assert ( addr.prefecture == '京都府' )
-assert ( addr.city == '京都市下京区' )
-assert ( addr.street == '烏丸通七条下ル 東塩小路町 721-1')
+assert ( addr.city == '京都市中京区' )
+assert ( addr.street == '船屋町４００−１')
 assert ( addr.prefCode == 26)
-assert ( addr.cityCode == 26106)
-assert ( addr.geodetic == (35.002973, 135.764009))
+assert ( addr.cityCode == 26104)
+assert ( addr.validate == True )
+assert ( addr.geodetic == (35.005594, 135.766252))
 assert ( str(addr)
-         == '京都府京都市下京区烏丸通七条下ル 東塩小路町 721-1' )
-
-data = '京都 下京区 烏丸通七条下ル 東塩小路町 721-1'
-addr = self.parser.parse_address(data)
-assert ( addr.zipCode == None )
-assert ( addr.prefecture == '京都府' )
-assert ( addr.city == '京都市下京区' )
-assert ( addr.street == '烏丸通七条下ル 東塩小路町 721-1')
-assert ( addr.prefCode == 26)
-assert ( addr.cityCode == 26106)
-assert ( addr.geodetic == (35.002973, 135.764009))
-assert ( str(addr)
-         == '京都府京都市下京区烏丸通七条下ル 東塩小路町 721-1' )
+         == '〒604-0836 京都府京都市中京区船屋町４００−１' )
 
 data = '東京都渋谷区桜丘町１２−３４'
 addr = self.parser.parse_address(data)
@@ -180,6 +225,7 @@ assert ( addr.street == '桜丘町１２−３４')
 assert ( addr.prefCode == 13)
 assert ( addr.cityCode == 13113)
 assert ( addr.geodetic == ( 35.655642, 139.700634) )
+assert ( addr.validate == True )
 assert ( str(addr)
          == '東京都渋谷区桜丘町１２−３４' )
 
@@ -192,6 +238,7 @@ assert ( addr.street == '桜丘町１２−３４')
 assert ( addr.prefCode == 13)
 assert ( addr.cityCode == 13113)
 assert ( addr.geodetic == ( 35.655642, 139.700634) )
+assert ( addr.validate == True )
 assert ( str(addr)
          == '東京都渋谷区桜丘町１２−３４' )
 
@@ -204,6 +251,7 @@ assert ( addr.street == '桜丘町１２−３４')
 assert ( addr.prefCode == 13)
 assert ( addr.cityCode == 13113)
 assert ( addr.geodetic == ( 35.655642, 139.700634) )
+assert ( addr.validate == True )
 assert ( str(addr)
          == '東京都渋谷区桜丘町１２−３４' )
 
@@ -216,6 +264,7 @@ assert ( addr.street == '桜丘町１２−３４')
 assert ( addr.prefCode == 13)
 assert ( addr.cityCode == 13113)
 assert ( addr.geodetic == ( 35.655642, 139.700634) )
+assert ( addr.validate == True )
 assert ( str(addr)
          == '東京都渋谷区桜丘町１２−３４' )
 
@@ -228,6 +277,7 @@ assert ( addr.street == '桜丘町１２−３４')
 assert ( addr.prefCode == 13)
 assert ( addr.cityCode == 13113)
 assert ( addr.geodetic == ( 35.655642, 139.700634) )
+assert ( addr.validate == True )
 assert ( str(addr)
          == '東京都渋谷区桜丘町１２−３４' )
 
@@ -240,6 +290,7 @@ assert ( addr.street == '桜丘町１２−３４')
 assert ( addr.prefCode == 13)
 assert ( addr.cityCode == 13113)
 assert ( addr.geodetic == ( 35.655642, 139.700634) )
+assert ( addr.validate == True )
 assert ( str(addr)
          == '東京都渋谷区桜丘町１２−３４' )
 
@@ -252,9 +303,9 @@ assert ( addr.street == '桜丘町１２−３４')
 assert ( addr.prefCode == 13)
 assert ( addr.cityCode == 13113)
 assert ( addr.geodetic == ( 35.655642, 139.700634) )
+assert ( addr.validate == True )
 assert ( str(addr)
          == '東京都渋谷区桜丘町１２−３４' )
-
 ```
 
 ### Dataframe of jp.prefectures

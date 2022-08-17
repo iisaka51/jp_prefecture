@@ -2,8 +2,9 @@ import re
 from dataclasses import dataclass, InitVar, field
 from typing import Optional
 from .jp_cities import jp_cities as jp
-from .jp_cities import Geodetic
+from .jp_cities import JpCity, Geodetic
 from .jp_numbers import JpNumberParser
+import snoop
 
 class JpAddressError(BaseException):
     pass
@@ -17,6 +18,7 @@ class JpAddress(object):
     prefCode: Optional[int]=field(init=False, repr=False, default=None)
     cityCode: Optional[int]=field(init=False, repr=False, default=None)
     geodetic: Optional[Geodetic]=field(init=True, repr=False, default=None)
+    validate: Optional[bool]=field(init=False, repr=False, default=None)
 
     def __post_init__(self):
         zip_parser = JpZipCode()
@@ -32,8 +34,15 @@ class JpAddress(object):
         else:
             self.prefecture = jp.name2normalize(self.prefecture)
         self.prefCode = jp.name2code(self.prefecture)
+
         if not self.geodetic:
             self.geodetic = jp.cityname2geodetic(self.city)
+            self.validate = True
+        elif not self.city or self.geodetic == Geodetic(0,0):
+            self.geodetic = None
+            self.validate = False
+        else:
+            self.validate = True
 
     def __str__(self):
         if self.zipCode:
@@ -88,11 +97,14 @@ class JpAddressParser(JpZipCode):
         r'.{1,7}?[市町村])(.+)'
     )
 
-    def __init__(self):
+    def __init__(self, enable_town: bool=False):
         self.address_re = re.compile(self.__address_pattern, re.UNICODE)
         self.jp_number = JpNumberParser()
+        self.enable_town = enable_town
+        self.jp = JpCity(enable_town=True)
         super().__init__()
 
+    @snoop
     def parse_address(self, address):
         address = address.replace('\u3000', ' ')
         r = self.address_re.search(address)
@@ -101,18 +113,18 @@ class JpAddressParser(JpZipCode):
             prefecture = jp.name2normalize(r.group('Prefecture'))
             if not prefecture:
                 city = r.group('Prefecture') + r.group(3)
-                city_normal = jp.cityname2normalize(city)
+                city_normal = self.jp.cityname2normalize(city)
                 if not city_normal:
                     city = re.split('[区市]', city)[0]
                     try:
-                        city = jp.findcity(city + '[区市].*')[0]
+                        city = self.jp.findcity(city + '[区市].*')[0]
                     except:
                         city = ''
-                    city_normal = jp.cityname2normalize(city)
+                    city_normal = self.jp.cityname2normalize(city)
             else:
                 city = r.group(3).replace(' ', '')
                 city = city.replace('\u3000', '') # Kanji Space
-                city_normal = jp.cityname2normalize(city)
+                city_normal = self.jp.cityname2normalize(city)
             if not city_normal:
                 city = jp.findcity(r.group('Prefecture') + '.*' + city)
                 if city:
@@ -141,10 +153,13 @@ class JpAddressParser(JpZipCode):
                 else:
                     town = re.split('[町村]', normalized_street)[0]
             try:
-                town = jp.findtown(town, city)[0]
-                geodetic = town.geodetic
+                if self.enable_town:
+                    town = self.jp.findtown(town, city)[0]
+                    geodetic = town.geodetic
+                else:
+                    geodetic = self.jp.cityname2geodetic(city)
             except:
-                geodetic = None
+                geodetic = Geodetic(0,0)
 
             result = JpAddress(zipCode=r.group(1),
                                prefecture=prefecture, city=city,
