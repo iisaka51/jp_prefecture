@@ -89,8 +89,8 @@ class TestKanji2Number(TestClass):
         }
         for d, n in data.items():
             v = self.parser.kanji2number(d)
-            assert (v.as_int == n)
-            assert (v.as_str == str(n))
+            assert ( v.as_int == n )
+            assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
 
@@ -217,8 +217,8 @@ class TestNumber2Kanji(TestClass):
         }
         for d, n in data.items():
             v = self.parser.number2kanji(n, style='daiji')
-            assert (v.as_int == n)
-            assert (v.as_str == str(n))
+            assert ( v.as_int == n )
+            assert ( v.as_str == str(n) )
             assert ( v.as_kanji == d )
 
 class TestNormalize(TestClass):
