@@ -16,7 +16,7 @@ setup(
     name="jp_prefecture",
     version=get_version('jp_prefecture/versions.py'),
     license="MIT",
-    install_requirements=["pandas"],
+    install_requires=["pandas"],
     author="iisaka51",
     author_email="iisaka51@gmail.com",
     url="https://github.com/iisaka51/jp_prefecture",
